@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.js.map
+*.d.ts
+!src/**/*.d.ts
+.env
+.env.test
+tests/.env.test
+.DS_Store
+.claude.local.md

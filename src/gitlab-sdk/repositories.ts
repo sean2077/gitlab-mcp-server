@@ -77,8 +77,11 @@ export class GitLabRepositoriesService extends BaseGitLabService {
     try {
       await this.getFile(projectId, filePath, data.branch);
       method = 'PUT';
-    } catch {
-      // File doesn't exist, use POST
+    } catch (err) {
+      // Only swallow 404 (file not found); re-throw other errors
+      if (err instanceof Error && !err.message.includes('(404)')) {
+        throw err;
+      }
     }
 
     return this.fetchJson<{ file_path: string; branch: string; commit_id: string }>(url, {

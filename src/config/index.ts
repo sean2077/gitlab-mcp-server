@@ -8,8 +8,7 @@ export interface GitLabConfig {
 export function getConfig(): GitLabConfig {
   const token = process.env.GITLAB_TOKEN;
   if (!token) {
-    console.error('GITLAB_TOKEN environment variable is not set');
-    process.exit(1);
+    throw new Error('GITLAB_TOKEN environment variable is not set');
   }
 
   const baseUrl = (process.env.GITLAB_URL || 'https://gitlab.com').replace(/\/$/, '');

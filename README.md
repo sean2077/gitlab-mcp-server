@@ -1,6 +1,19 @@
 # GitLab MCP Server
 
-A [Model Context Protocol](https://modelcontextprotocol.io/) server for GitLab integration. Designed for self-hosted GitLab instances (tested with GitLab 18.2.0).
+A [Model Context Protocol](https://modelcontextprotocol.io/) server for GitLab integration, targeting **self-hosted GitLab instances** (tested with GitLab 18.2.0).
+
+## Why this project?
+
+GitLab [officially supports MCP](https://docs.gitlab.com/ee/user/gitlab_duo/mcp/) starting from **v18.6+**. If you're running an older self-hosted GitLab (e.g., 18.2.x), the official integration is not available. This project fills that gap — a standalone MCP server that works with older GitLab versions via the REST API v4.
+
+**Use this if:**
+- Your self-hosted GitLab is on a version **before 18.6**
+- You want a lightweight, dependency-free MCP server you can customize
+- You need tools not yet covered by the official GitLab MCP integration
+
+**Use the official GitLab MCP if:**
+- Your instance is on GitLab **18.6+**
+- You prefer vendor-supported, built-in integration
 
 ## Features (87 tools)
 

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
+import { coercedBoolean } from '../utils/zod.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listGroupsTool: ToolDefinition = {

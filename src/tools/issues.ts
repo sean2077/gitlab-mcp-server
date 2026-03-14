@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
-import { coerceArray } from '../utils/zod.js';
+import { coerceArray, coercedBoolean } from '../utils/zod.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listIssuesTool: ToolDefinition = {
@@ -58,7 +58,7 @@ export const createIssueTool: ToolDefinition = {
     milestone_id: z.coerce.number().optional().describe('Milestone ID'),
     labels: coerceArray(z.array(z.string())).optional().describe('Label names'),
     due_date: z.string().optional().describe('Due date (YYYY-MM-DD)'),
-    confidential: z.boolean().optional().describe('Mark as confidential'),
+    confidential: coercedBoolean().optional().describe('Mark as confidential'),
   }),
   handler: async (params) => {
     const { issues } = createGitLabServices();
@@ -81,7 +81,7 @@ export const updateIssueTool: ToolDefinition = {
     labels: coerceArray(z.array(z.string())).optional().describe('Label names'),
     state_event: z.enum(['close', 'reopen']).optional().describe('State transition'),
     due_date: z.string().nullable().optional().describe('Due date (YYYY-MM-DD)'),
-    confidential: z.boolean().optional().describe('Mark as confidential'),
+    confidential: coercedBoolean().optional().describe('Mark as confidential'),
   }),
   handler: async (params) => {
     const { issues } = createGitLabServices();
@@ -126,7 +126,7 @@ export const createIssueNoteTool: ToolDefinition = {
     project_id: z.string().describe('Project ID or URL-encoded path'),
     issue_iid: z.coerce.number().describe('Issue internal ID'),
     body: z.string().describe('Note content (Markdown)'),
-    internal: z.boolean().optional().describe('Create as internal note'),
+    internal: coercedBoolean().optional().describe('Create as internal note'),
   }),
   handler: async (params) => {
     const { issues } = createGitLabServices();

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
-import { coerceArray } from '../utils/zod.js';
+import { coerceArray, coercedBoolean } from '../utils/zod.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listPipelinesTool: ToolDefinition = {
@@ -54,7 +54,7 @@ export const listPipelineJobsTool: ToolDefinition = {
     project_id: z.string().describe('Project ID or URL-encoded path'),
     pipeline_id: z.coerce.number().describe('Pipeline ID'),
     scope: coerceArray(z.array(z.enum(['created', 'waiting_for_resource', 'preparing', 'pending', 'running', 'failed', 'success', 'canceled', 'skipped', 'manual']))).optional().describe('Filter jobs by status'),
-    include_retried: z.boolean().optional().describe('Include retried jobs'),
+    include_retried: coercedBoolean().optional().describe('Include retried jobs'),
     page: z.coerce.number().optional().describe('Page number (1-indexed)'),
     per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),

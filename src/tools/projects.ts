@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
+import { coercedBoolean } from '../utils/zod.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listProjectsTool: ToolDefinition = {
@@ -7,13 +8,13 @@ export const listProjectsTool: ToolDefinition = {
   description: 'List GitLab projects accessible to the authenticated user',
   parameters: z.object({
     search: z.string().optional().describe('Search query'),
-    owned: z.boolean().optional().describe('Filter to owned projects'),
-    membership: z.boolean().optional().describe('Filter to member projects'),
-    archived: z.boolean().optional().describe('Filter by archived status'),
+    owned: coercedBoolean().optional().describe('Filter to owned projects'),
+    membership: coercedBoolean().optional().describe('Filter to member projects'),
+    archived: coercedBoolean().optional().describe('Filter by archived status'),
     visibility: z.enum(['public', 'internal', 'private']).optional().describe('Filter by visibility'),
     order_by: z.enum(['id', 'name', 'path', 'created_at', 'updated_at', 'last_activity_at']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
-    simple: z.boolean().optional().default(true).describe('Return only limited fields (id, name, path, namespace, etc). Set to false for full details'),
+    simple: coercedBoolean().optional().default(true).describe('Return only limited fields (id, name, path, namespace, etc). Set to false for full details'),
     page: z.coerce.number().optional().describe('Page number (1-indexed)'),
     per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
@@ -47,7 +48,7 @@ export const searchProjectsTool: ToolDefinition = {
   description: 'Search for GitLab projects by name',
   parameters: z.object({
     search: z.string().describe('Search query'),
-    simple: z.boolean().optional().default(true).describe('Return only limited fields. Set to false for full details'),
+    simple: coercedBoolean().optional().default(true).describe('Return only limited fields. Set to false for full details'),
     page: z.coerce.number().optional().describe('Page number (1-indexed)'),
     per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
@@ -95,7 +96,7 @@ export const listLabelsTool: ToolDefinition = {
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
     search: z.string().optional().describe('Search labels by name'),
-    include_ancestor_groups: z.boolean().optional().describe('Include labels from ancestor groups'),
+    include_ancestor_groups: coercedBoolean().optional().describe('Include labels from ancestor groups'),
     page: z.coerce.number().optional().describe('Page number (1-indexed)'),
     per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
@@ -141,7 +142,7 @@ export const listMilestonesTool: ToolDefinition = {
     state: z.enum(['active', 'closed']).optional().describe('Filter by state'),
     title: z.string().optional().describe('Filter by exact title'),
     search: z.string().optional().describe('Search milestones by title or description'),
-    include_parent_milestones: z.boolean().optional().describe('Include milestones from parent groups'),
+    include_parent_milestones: coercedBoolean().optional().describe('Include milestones from parent groups'),
     page: z.coerce.number().optional().describe('Page number (1-indexed)'),
     per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
@@ -188,11 +189,11 @@ export const updateProjectTool: ToolDefinition = {
     description: z.string().optional().describe('New description'),
     default_branch: z.string().optional().describe('Default branch name'),
     visibility: z.enum(['private', 'internal', 'public']).optional().describe('Visibility level'),
-    issues_enabled: z.boolean().optional().describe('Enable issues'),
-    merge_requests_enabled: z.boolean().optional().describe('Enable merge requests'),
-    wiki_enabled: z.boolean().optional().describe('Enable wiki'),
-    jobs_enabled: z.boolean().optional().describe('Enable CI/CD jobs'),
-    archived: z.boolean().optional().describe('Archive/unarchive project'),
+    issues_enabled: coercedBoolean().optional().describe('Enable issues'),
+    merge_requests_enabled: coercedBoolean().optional().describe('Enable merge requests'),
+    wiki_enabled: coercedBoolean().optional().describe('Enable wiki'),
+    jobs_enabled: coercedBoolean().optional().describe('Enable CI/CD jobs'),
+    archived: coercedBoolean().optional().describe('Archive/unarchive project'),
   }),
   handler: async (params) => {
     const { projects } = createGitLabServices();
@@ -212,7 +213,7 @@ export const createProjectTool: ToolDefinition = {
     name: z.string().describe('Project name'),
     description: z.string().optional().describe('Project description'),
     visibility: z.enum(['private', 'internal', 'public']).optional().describe('Visibility level'),
-    initialize_with_readme: z.boolean().optional().describe('Initialize with a README file'),
+    initialize_with_readme: coercedBoolean().optional().describe('Initialize with a README file'),
     namespace_id: z.coerce.number().optional().describe('Namespace/group ID to create project in'),
     default_branch: z.string().optional().describe('Default branch name'),
   }),

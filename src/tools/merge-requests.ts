@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
-import { coerceArray } from '../utils/zod.js';
+import { coerceArray, coercedBoolean } from '../utils/zod.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listMergeRequestsTool: ToolDefinition = {
@@ -63,9 +63,9 @@ export const createMergeRequestTool: ToolDefinition = {
     reviewer_ids: coerceArray(z.array(z.coerce.number())).optional().describe('Reviewer user IDs'),
     labels: coerceArray(z.array(z.string())).optional().describe('Label names'),
     milestone_id: z.coerce.number().optional().describe('Milestone ID'),
-    remove_source_branch: z.boolean().optional().describe('Remove source branch after merge'),
-    squash: z.boolean().optional().describe('Squash commits on merge'),
-    draft: z.boolean().optional().describe('Mark as draft'),
+    remove_source_branch: coercedBoolean().optional().describe('Remove source branch after merge'),
+    squash: coercedBoolean().optional().describe('Squash commits on merge'),
+    draft: coercedBoolean().optional().describe('Mark as draft'),
   }),
   handler: async (params) => {
     const { mergeRequests } = createGitLabServices();
@@ -92,9 +92,9 @@ export const updateMergeRequestTool: ToolDefinition = {
     labels: coerceArray(z.array(z.string())).optional().describe('Label names'),
     milestone_id: z.coerce.number().nullable().optional().describe('Milestone ID'),
     state_event: z.enum(['close', 'reopen']).optional().describe('State transition'),
-    remove_source_branch: z.boolean().optional().describe('Remove source branch after merge'),
-    squash: z.boolean().optional().describe('Squash commits on merge'),
-    draft: z.boolean().optional().describe('Mark as draft'),
+    remove_source_branch: coercedBoolean().optional().describe('Remove source branch after merge'),
+    squash: coercedBoolean().optional().describe('Squash commits on merge'),
+    draft: coercedBoolean().optional().describe('Mark as draft'),
   }),
   handler: async (params) => {
     const { mergeRequests } = createGitLabServices();
@@ -116,8 +116,8 @@ export const mergeMergeRequestTool: ToolDefinition = {
     merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
     merge_commit_message: z.string().optional().describe('Custom merge commit message'),
     squash_commit_message: z.string().optional().describe('Custom squash commit message'),
-    squash: z.boolean().optional().describe('Squash commits'),
-    should_remove_source_branch: z.boolean().optional().describe('Remove source branch'),
+    squash: coercedBoolean().optional().describe('Squash commits'),
+    should_remove_source_branch: coercedBoolean().optional().describe('Remove source branch'),
     sha: z.string().optional().describe('Expected HEAD SHA of the MR'),
   }),
   handler: async (params) => {
@@ -273,7 +273,7 @@ export const rebaseMergeRequestTool: ToolDefinition = {
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
     merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
-    skip_ci: z.boolean().optional().describe('Skip CI pipeline after rebase'),
+    skip_ci: coercedBoolean().optional().describe('Skip CI pipeline after rebase'),
   }),
   handler: async (params) => {
     const { mergeRequests } = createGitLabServices();
@@ -350,8 +350,8 @@ export const setAutoMergeTool: ToolDefinition = {
     merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
     merge_commit_message: z.string().optional().describe('Custom merge commit message'),
     squash_commit_message: z.string().optional().describe('Custom squash commit message'),
-    squash: z.boolean().optional().describe('Squash commits'),
-    should_remove_source_branch: z.boolean().optional().describe('Remove source branch'),
+    squash: coercedBoolean().optional().describe('Squash commits'),
+    should_remove_source_branch: coercedBoolean().optional().describe('Remove source branch'),
     sha: z.string().optional().describe('Expected HEAD SHA of the MR'),
   }),
   handler: async (params) => {

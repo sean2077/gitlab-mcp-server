@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
-import { coerceArray } from '../utils/zod.js';
+import { coerceArray, coercedBoolean } from '../utils/zod.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listBranchesTool: ToolDefinition = {
@@ -71,7 +71,7 @@ export const listRepositoryTreeTool: ToolDefinition = {
     project_id: z.string().describe('Project ID or URL-encoded path'),
     path: z.string().optional().describe('Path inside the repository'),
     ref: z.string().optional().describe('Branch, tag, or commit SHA'),
-    recursive: z.boolean().optional().describe('List recursively'),
+    recursive: coercedBoolean().optional().describe('List recursively'),
     page: z.coerce.number().optional().describe('Page number (1-indexed)'),
     per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
@@ -95,7 +95,7 @@ export const compareBranchesTool: ToolDefinition = {
     project_id: z.string().describe('Project ID or URL-encoded path'),
     from: z.string().describe('Base branch/tag/commit SHA'),
     to: z.string().describe('Target branch/tag/commit SHA'),
-    straight: z.boolean().optional().describe('Use straight comparison instead of merge base'),
+    straight: coercedBoolean().optional().describe('Use straight comparison instead of merge base'),
   }),
   handler: async (params) => {
     const { repositories } = createGitLabServices();
@@ -186,9 +186,9 @@ export const listCommitsTool: ToolDefinition = {
     since: z.string().optional().describe('Only commits after this date (ISO 8601)'),
     until: z.string().optional().describe('Only commits before this date (ISO 8601)'),
     path: z.string().optional().describe('Filter commits affecting this path'),
-    all: z.boolean().optional().describe('Retrieve all commits from all branches'),
-    with_stats: z.boolean().optional().describe('Include commit stats'),
-    first_parent: z.boolean().optional().describe('Follow only first parent on merges'),
+    all: coercedBoolean().optional().describe('Retrieve all commits from all branches'),
+    with_stats: coercedBoolean().optional().describe('Include commit stats'),
+    first_parent: coercedBoolean().optional().describe('Follow only first parent on merges'),
     page: z.coerce.number().optional().describe('Page number (1-indexed)'),
     per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
@@ -280,8 +280,8 @@ export const protectBranchTool: ToolDefinition = {
     name: z.string().describe('Branch name or wildcard pattern to protect'),
     push_access_level: z.coerce.number().optional().describe('Access level for push (0=No access, 30=Developer, 40=Maintainer)'),
     merge_access_level: z.coerce.number().optional().describe('Access level for merge (0=No access, 30=Developer, 40=Maintainer)'),
-    allow_force_push: z.boolean().optional().describe('Allow force push'),
-    code_owner_approval_required: z.boolean().optional().describe('Require code owner approval'),
+    allow_force_push: coercedBoolean().optional().describe('Allow force push'),
+    code_owner_approval_required: coercedBoolean().optional().describe('Require code owner approval'),
   }),
   handler: async (params) => {
     const { repositories } = createGitLabServices();

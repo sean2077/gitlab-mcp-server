@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
+import { coercedBoolean } from '../utils/zod.js';
 import type { ToolDefinition } from '../types/index.js';
 
 // ============================================================================
@@ -11,7 +12,7 @@ export const listProjectWikiPagesTool: ToolDefinition = {
   description: 'List all wiki pages for a GitLab project',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    with_content: z.boolean().optional().describe('Include page content in response'),
+    with_content: coercedBoolean().optional().describe('Include page content in response'),
   }),
   handler: async (params) => {
     const { wikis } = createGitLabServices();
@@ -34,7 +35,7 @@ export const getProjectWikiPageTool: ToolDefinition = {
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
     slug: z.string().describe('URL-encoded slug of the wiki page (e.g. "my-page")'),
-    render_html: z.boolean().optional().describe('Return rendered HTML content'),
+    render_html: coercedBoolean().optional().describe('Return rendered HTML content'),
     version: z.string().optional().describe('Wiki page version SHA'),
   }),
   handler: async (params) => {
@@ -119,7 +120,7 @@ export const listGroupWikiPagesTool: ToolDefinition = {
   description: 'List all wiki pages for a GitLab group',
   parameters: z.object({
     group_id: z.string().describe('Group ID or URL-encoded path'),
-    with_content: z.boolean().optional().describe('Include page content in response'),
+    with_content: coercedBoolean().optional().describe('Include page content in response'),
   }),
   handler: async (params) => {
     const { wikis } = createGitLabServices();
@@ -142,7 +143,7 @@ export const getGroupWikiPageTool: ToolDefinition = {
   parameters: z.object({
     group_id: z.string().describe('Group ID or URL-encoded path'),
     slug: z.string().describe('URL-encoded slug of the wiki page'),
-    render_html: z.boolean().optional().describe('Return rendered HTML content'),
+    render_html: coercedBoolean().optional().describe('Return rendered HTML content'),
     version: z.string().optional().describe('Wiki page version SHA'),
   }),
   handler: async (params) => {

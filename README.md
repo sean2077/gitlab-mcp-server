@@ -15,6 +15,13 @@ GitLab [officially supports MCP](https://docs.gitlab.com/ee/user/gitlab_duo/mcp/
 - Your instance is on GitLab **18.6+**
 - You prefer vendor-supported, built-in integration
 
+## Highlights
+
+- **MCP client compatible** — robust type coercion handles string-typed numbers, booleans, and JSON-encoded arrays from any MCP client
+- **Response-size optimized** — list endpoints default to `simple=true`, group details default to `with_projects=false`, preventing token overflow in LLM conversations
+- **Resilient** — automatic retry on 429 (rate limit) with Retry-After, configurable timeouts, unified error messages
+- **Zero runtime dependencies** beyond `@modelcontextprotocol/sdk` and `zod`
+
 ## Features (87 tools)
 
 - **Users** (3): get current user, search users, get user by ID
@@ -94,7 +101,7 @@ src/
 │   └── base.ts     # Base class: fetch, pagination, error handling, 429 retry
 ├── tools/          # MCP tool definitions (Zod schema + handler per domain)
 ├── types/          # TypeScript type definitions
-└── utils/          # Auth service factory
+└── utils/          # Auth service factory, Zod type-coercion helpers
 ```
 
 ## License

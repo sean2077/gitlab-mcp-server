@@ -14,8 +14,8 @@ export const listProjectsTool: ToolDefinition = {
     order_by: z.enum(['id', 'name', 'path', 'created_at', 'updated_at', 'last_activity_at']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
     simple: z.boolean().optional().default(true).describe('Return only limited fields (id, name, path, namespace, etc). Set to false for full details'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { projects } = createGitLabServices();
@@ -48,8 +48,8 @@ export const searchProjectsTool: ToolDefinition = {
   parameters: z.object({
     search: z.string().describe('Search query'),
     simple: z.boolean().optional().default(true).describe('Return only limited fields. Set to false for full details'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { projects } = createGitLabServices();
@@ -73,8 +73,8 @@ export const listProjectMembersTool: ToolDefinition = {
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
     query: z.string().optional().describe('Search members by name or username'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { projects } = createGitLabServices();
@@ -96,8 +96,8 @@ export const listLabelsTool: ToolDefinition = {
     project_id: z.string().describe('Project ID or URL-encoded path'),
     search: z.string().optional().describe('Search labels by name'),
     include_ancestor_groups: z.boolean().optional().describe('Include labels from ancestor groups'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { projects } = createGitLabServices();
@@ -120,7 +120,7 @@ export const createLabelTool: ToolDefinition = {
     name: z.string().describe('Label name'),
     color: z.string().describe('Label color (hex code, e.g. "#FF0000")'),
     description: z.string().optional().describe('Label description'),
-    priority: z.number().optional().describe('Label priority'),
+    priority: z.coerce.number().optional().describe('Label priority'),
   }),
   handler: async (params) => {
     const { projects } = createGitLabServices();
@@ -142,8 +142,8 @@ export const listMilestonesTool: ToolDefinition = {
     title: z.string().optional().describe('Filter by exact title'),
     search: z.string().optional().describe('Search milestones by title or description'),
     include_parent_milestones: z.boolean().optional().describe('Include milestones from parent groups'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { projects } = createGitLabServices();
@@ -213,7 +213,7 @@ export const createProjectTool: ToolDefinition = {
     description: z.string().optional().describe('Project description'),
     visibility: z.enum(['private', 'internal', 'public']).optional().describe('Visibility level'),
     initialize_with_readme: z.boolean().optional().describe('Initialize with a README file'),
-    namespace_id: z.number().optional().describe('Namespace/group ID to create project in'),
+    namespace_id: z.coerce.number().optional().describe('Namespace/group ID to create project in'),
     default_branch: z.string().optional().describe('Default branch name'),
   }),
   handler: async (params) => {
@@ -252,8 +252,8 @@ export const getProjectEventsTool: ToolDefinition = {
     before: z.string().optional().describe('Events before this date (ISO 8601)'),
     after: z.string().optional().describe('Events after this date (ISO 8601)'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { projects } = createGitLabServices();
@@ -273,11 +273,11 @@ export const updateLabelTool: ToolDefinition = {
   description: 'Update an existing label in a GitLab project',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    label_id: z.number().describe('Label ID'),
+    label_id: z.coerce.number().describe('Label ID'),
     new_name: z.string().optional().describe('New label name'),
     color: z.string().optional().describe('New color (hex code)'),
     description: z.string().optional().describe('New description'),
-    priority: z.number().nullable().optional().describe('New priority (null to remove)'),
+    priority: z.coerce.number().nullable().optional().describe('New priority (null to remove)'),
   }),
   handler: async (params) => {
     const { projects } = createGitLabServices();
@@ -296,7 +296,7 @@ export const updateMilestoneTool: ToolDefinition = {
   description: 'Update an existing milestone in a GitLab project',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    milestone_id: z.number().describe('Milestone ID'),
+    milestone_id: z.coerce.number().describe('Milestone ID'),
     title: z.string().optional().describe('New title'),
     description: z.string().optional().describe('New description'),
     due_date: z.string().nullable().optional().describe('Due date (YYYY-MM-DD, null to clear)'),

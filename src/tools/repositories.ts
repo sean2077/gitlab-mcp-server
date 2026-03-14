@@ -9,8 +9,8 @@ export const listBranchesTool: ToolDefinition = {
     project_id: z.string().describe('Project ID or URL-encoded path'),
     search: z.string().optional().describe('Search branches by name'),
     regex: z.string().optional().describe('Filter branches by regex pattern'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { repositories } = createGitLabServices();
@@ -71,8 +71,8 @@ export const listRepositoryTreeTool: ToolDefinition = {
     path: z.string().optional().describe('Path inside the repository'),
     ref: z.string().optional().describe('Branch, tag, or commit SHA'),
     recursive: z.boolean().optional().describe('List recursively'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { repositories } = createGitLabServices();
@@ -188,8 +188,8 @@ export const listCommitsTool: ToolDefinition = {
     all: z.boolean().optional().describe('Retrieve all commits from all branches'),
     with_stats: z.boolean().optional().describe('Include commit stats'),
     first_parent: z.boolean().optional().describe('Follow only first parent on merges'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { repositories } = createGitLabServices();
@@ -212,8 +212,8 @@ export const listTagsTool: ToolDefinition = {
     search: z.string().optional().describe('Search tags by name'),
     order_by: z.enum(['name', 'updated_at', 'version']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { repositories } = createGitLabServices();
@@ -255,8 +255,8 @@ export const listProtectedBranchesTool: ToolDefinition = {
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
     search: z.string().optional().describe('Search by branch name'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { repositories } = createGitLabServices();
@@ -277,8 +277,8 @@ export const protectBranchTool: ToolDefinition = {
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
     name: z.string().describe('Branch name or wildcard pattern to protect'),
-    push_access_level: z.number().optional().describe('Access level for push (0=No access, 30=Developer, 40=Maintainer)'),
-    merge_access_level: z.number().optional().describe('Access level for merge (0=No access, 30=Developer, 40=Maintainer)'),
+    push_access_level: z.coerce.number().optional().describe('Access level for push (0=No access, 30=Developer, 40=Maintainer)'),
+    merge_access_level: z.coerce.number().optional().describe('Access level for merge (0=No access, 30=Developer, 40=Maintainer)'),
     allow_force_push: z.boolean().optional().describe('Allow force push'),
     code_owner_approval_required: z.boolean().optional().describe('Require code owner approval'),
   }),
@@ -311,8 +311,8 @@ export const listReleasesTool: ToolDefinition = {
     project_id: z.string().describe('Project ID or URL-encoded path'),
     order_by: z.enum(['released_at', 'created_at']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { repositories } = createGitLabServices();

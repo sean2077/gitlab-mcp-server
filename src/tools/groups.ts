@@ -8,12 +8,12 @@ export const listGroupsTool: ToolDefinition = {
   parameters: z.object({
     search: z.string().optional().describe('Search groups by name'),
     owned: z.boolean().optional().describe('Filter to owned groups'),
-    min_access_level: z.number().optional().describe('Minimum access level (10=Guest, 20=Reporter, 30=Developer, 40=Maintainer, 50=Owner)'),
+    min_access_level: z.coerce.number().optional().describe('Minimum access level (10=Guest, 20=Reporter, 30=Developer, 40=Maintainer, 50=Owner)'),
     top_level_only: z.boolean().optional().describe('Only top-level groups'),
     order_by: z.enum(['name', 'path', 'id']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { groups } = createGitLabServices();
@@ -52,8 +52,8 @@ export const listGroupProjectsTool: ToolDefinition = {
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
     include_subgroups: z.boolean().optional().describe('Include projects from subgroups'),
     simple: z.boolean().optional().default(true).describe('Return only limited fields. Set to false for full details'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { groups } = createGitLabServices();
@@ -74,8 +74,8 @@ export const listGroupMembersTool: ToolDefinition = {
   parameters: z.object({
     group_id: z.string().describe('Group ID or URL-encoded path'),
     query: z.string().optional().describe('Search members by name or username'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { groups } = createGitLabServices();
@@ -97,11 +97,11 @@ export const listGroupSubgroupsTool: ToolDefinition = {
     group_id: z.string().describe('Group ID or URL-encoded path'),
     search: z.string().optional().describe('Search subgroups by name'),
     owned: z.boolean().optional().describe('Filter to owned groups'),
-    min_access_level: z.number().optional().describe('Minimum access level'),
+    min_access_level: z.coerce.number().optional().describe('Minimum access level'),
     order_by: z.enum(['name', 'path', 'id']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { groups } = createGitLabServices();
@@ -124,7 +124,7 @@ export const createGroupTool: ToolDefinition = {
     path: z.string().describe('Group URL path'),
     description: z.string().optional().describe('Group description'),
     visibility: z.enum(['private', 'internal', 'public']).optional().describe('Visibility level'),
-    parent_id: z.number().optional().describe('Parent group ID (for creating subgroups)'),
+    parent_id: z.coerce.number().optional().describe('Parent group ID (for creating subgroups)'),
     project_creation_level: z.enum(['noone', 'maintainer', 'developer']).optional().describe('Who can create projects'),
     subgroup_creation_level: z.enum(['owner', 'maintainer']).optional().describe('Who can create subgroups'),
   }),

@@ -23,8 +23,8 @@ export const searchUsersTool: ToolDefinition = {
     blocked: z.boolean().optional().describe('Filter by blocked state'),
     order_by: z.enum(['id', 'name', 'username', 'created_at', 'updated_at']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { users } = createGitLabServices();
@@ -42,7 +42,7 @@ export const getUserTool: ToolDefinition = {
   name: 'gitlab_get_user',
   description: 'Get details of a specific GitLab user by ID',
   parameters: z.object({
-    user_id: z.number().describe('User ID'),
+    user_id: z.coerce.number().describe('User ID'),
   }),
   handler: async (params) => {
     const { users } = createGitLabServices();

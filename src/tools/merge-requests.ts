@@ -9,9 +9,9 @@ export const listMergeRequestsTool: ToolDefinition = {
     project_id: z.string().describe('Project ID or URL-encoded path'),
     state: z.enum(['opened', 'closed', 'merged', 'all']).optional().describe('Filter by state'),
     scope: z.enum(['created_by_me', 'assigned_to_me', 'all']).optional().describe('Filter scope'),
-    assignee_id: z.number().optional().describe('Assignee user ID'),
-    author_id: z.number().optional().describe('Author user ID'),
-    reviewer_id: z.number().optional().describe('Reviewer user ID'),
+    assignee_id: z.coerce.number().optional().describe('Assignee user ID'),
+    author_id: z.coerce.number().optional().describe('Author user ID'),
+    reviewer_id: z.coerce.number().optional().describe('Reviewer user ID'),
     labels: z.string().optional().describe('Comma-separated label names'),
     milestone: z.string().optional().describe('Milestone title'),
     search: z.string().optional().describe('Search in title and description'),
@@ -19,8 +19,8 @@ export const listMergeRequestsTool: ToolDefinition = {
     target_branch: z.string().optional().describe('Filter by target branch'),
     order_by: z.enum(['created_at', 'updated_at']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { mergeRequests } = createGitLabServices();
@@ -40,7 +40,7 @@ export const getMergeRequestTool: ToolDefinition = {
   description: 'Get a specific merge request from a GitLab project',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
   }),
   handler: async (params) => {
     const { mergeRequests } = createGitLabServices();
@@ -58,10 +58,10 @@ export const createMergeRequestTool: ToolDefinition = {
     description: z.string().optional().describe('MR description (Markdown)'),
     source_branch: z.string().describe('Source branch name'),
     target_branch: z.string().describe('Target branch name'),
-    assignee_ids: z.array(z.number()).optional().describe('Assignee user IDs'),
-    reviewer_ids: z.array(z.number()).optional().describe('Reviewer user IDs'),
+    assignee_ids: z.array(z.coerce.number()).optional().describe('Assignee user IDs'),
+    reviewer_ids: z.array(z.coerce.number()).optional().describe('Reviewer user IDs'),
     labels: z.array(z.string()).optional().describe('Label names'),
-    milestone_id: z.number().optional().describe('Milestone ID'),
+    milestone_id: z.coerce.number().optional().describe('Milestone ID'),
     remove_source_branch: z.boolean().optional().describe('Remove source branch after merge'),
     squash: z.boolean().optional().describe('Squash commits on merge'),
     draft: z.boolean().optional().describe('Mark as draft'),
@@ -82,14 +82,14 @@ export const updateMergeRequestTool: ToolDefinition = {
   description: 'Update an existing merge request in a GitLab project',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
     title: z.string().optional().describe('New title'),
     description: z.string().optional().describe('New description'),
     target_branch: z.string().optional().describe('New target branch'),
-    assignee_ids: z.array(z.number()).optional().describe('Assignee user IDs'),
-    reviewer_ids: z.array(z.number()).optional().describe('Reviewer user IDs'),
+    assignee_ids: z.array(z.coerce.number()).optional().describe('Assignee user IDs'),
+    reviewer_ids: z.array(z.coerce.number()).optional().describe('Reviewer user IDs'),
     labels: z.array(z.string()).optional().describe('Label names'),
-    milestone_id: z.number().nullable().optional().describe('Milestone ID'),
+    milestone_id: z.coerce.number().nullable().optional().describe('Milestone ID'),
     state_event: z.enum(['close', 'reopen']).optional().describe('State transition'),
     remove_source_branch: z.boolean().optional().describe('Remove source branch after merge'),
     squash: z.boolean().optional().describe('Squash commits on merge'),
@@ -112,7 +112,7 @@ export const mergeMergeRequestTool: ToolDefinition = {
   description: 'Merge a merge request',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
     merge_commit_message: z.string().optional().describe('Custom merge commit message'),
     squash_commit_message: z.string().optional().describe('Custom squash commit message'),
     squash: z.boolean().optional().describe('Squash commits'),
@@ -136,9 +136,9 @@ export const getMergeRequestDiffsTool: ToolDefinition = {
   description: 'Get the diffs/changes of a merge request',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { mergeRequests } = createGitLabServices();
@@ -162,11 +162,11 @@ export const listMRNotesTool: ToolDefinition = {
   description: 'List comments/notes on a merge request',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
     order_by: z.enum(['created_at', 'updated_at']).optional().describe('Order by field'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { mergeRequests } = createGitLabServices();
@@ -190,7 +190,7 @@ export const createMRNoteTool: ToolDefinition = {
   description: 'Add a comment/note to a merge request',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
     body: z.string().describe('Note content (Markdown)'),
   }),
   handler: async (params) => {
@@ -209,9 +209,9 @@ export const getMergeRequestCommitsTool: ToolDefinition = {
   description: 'Get the commits included in a merge request',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { mergeRequests } = createGitLabServices();
@@ -235,7 +235,7 @@ export const approveMergeRequestTool: ToolDefinition = {
   description: 'Approve a merge request',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
     sha: z.string().optional().describe('Expected HEAD SHA to ensure MR has not changed'),
   }),
   handler: async (params) => {
@@ -254,7 +254,7 @@ export const unapproveMergeRequestTool: ToolDefinition = {
   description: 'Remove your approval from a merge request',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
   }),
   handler: async (params) => {
     const { mergeRequests } = createGitLabServices();
@@ -271,7 +271,7 @@ export const rebaseMergeRequestTool: ToolDefinition = {
   description: 'Rebase a merge request onto the target branch',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
     skip_ci: z.boolean().optional().describe('Skip CI pipeline after rebase'),
   }),
   handler: async (params) => {
@@ -290,9 +290,9 @@ export const listMRDiscussionsTool: ToolDefinition = {
   description: 'List all discussions (threaded comments) on a merge request',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { mergeRequests } = createGitLabServices();
@@ -316,7 +316,7 @@ export const createMRDiscussionTool: ToolDefinition = {
   description: 'Create a new discussion (threaded comment) on a merge request, optionally on a specific line of code',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
     body: z.string().describe('Discussion body (Markdown)'),
     position: z.object({
       base_sha: z.string().describe('Base commit SHA from diff_refs'),
@@ -325,8 +325,8 @@ export const createMRDiscussionTool: ToolDefinition = {
       position_type: z.string().describe('Position type (usually "text")'),
       old_path: z.string().optional().describe('File path before change'),
       new_path: z.string().optional().describe('File path after change'),
-      old_line: z.number().nullable().optional().describe('Line number in old file'),
-      new_line: z.number().nullable().optional().describe('Line number in new file'),
+      old_line: z.coerce.number().nullable().optional().describe('Line number in old file'),
+      new_line: z.coerce.number().nullable().optional().describe('Line number in new file'),
     }).optional().describe('Position for inline discussions on diff'),
   }),
   handler: async (params) => {
@@ -346,7 +346,7 @@ export const setAutoMergeTool: ToolDefinition = {
   description: 'Set a merge request to merge automatically when the pipeline succeeds',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
     merge_commit_message: z.string().optional().describe('Custom merge commit message'),
     squash_commit_message: z.string().optional().describe('Custom squash commit message'),
     squash: z.boolean().optional().describe('Squash commits'),
@@ -366,7 +366,7 @@ export const cancelAutoMergeTool: ToolDefinition = {
   description: 'Cancel auto-merge for a merge request',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
   }),
   handler: async (params) => {
     const { mergeRequests } = createGitLabServices();
@@ -380,8 +380,8 @@ export const updateMRNoteTool: ToolDefinition = {
   description: 'Edit an existing comment/note on a merge request',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    merge_request_iid: z.number().describe('Merge request internal ID'),
-    note_id: z.number().describe('Note ID to update'),
+    merge_request_iid: z.coerce.number().describe('Merge request internal ID'),
+    note_id: z.coerce.number().describe('Note ID to update'),
     body: z.string().describe('Updated note content (Markdown)'),
   }),
   handler: async (params) => {

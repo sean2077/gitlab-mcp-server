@@ -13,8 +13,8 @@ export const listPipelinesTool: ToolDefinition = {
     username: z.string().optional().describe('Filter by username who triggered'),
     order_by: z.enum(['id', 'status', 'ref', 'updated_at', 'user_id']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { pipelines } = createGitLabServices();
@@ -34,7 +34,7 @@ export const getPipelineTool: ToolDefinition = {
   description: 'Get details of a specific CI/CD pipeline',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    pipeline_id: z.number().describe('Pipeline ID'),
+    pipeline_id: z.coerce.number().describe('Pipeline ID'),
   }),
   handler: async (params) => {
     const { pipelines } = createGitLabServices();
@@ -51,11 +51,11 @@ export const listPipelineJobsTool: ToolDefinition = {
   description: 'List jobs in a CI/CD pipeline',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    pipeline_id: z.number().describe('Pipeline ID'),
+    pipeline_id: z.coerce.number().describe('Pipeline ID'),
     scope: z.array(z.enum(['created', 'waiting_for_resource', 'preparing', 'pending', 'running', 'failed', 'success', 'canceled', 'skipped', 'manual'])).optional().describe('Filter jobs by status'),
     include_retried: z.boolean().optional().describe('Include retried jobs'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { pipelines } = createGitLabServices();
@@ -79,8 +79,8 @@ export const getJobLogTool: ToolDefinition = {
   description: 'Get the log/trace output of a CI/CD job',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    job_id: z.number().describe('Job ID'),
-    tail_lines: z.number().optional().describe('Only return the last N lines of the log'),
+    job_id: z.coerce.number().describe('Job ID'),
+    tail_lines: z.coerce.number().optional().describe('Only return the last N lines of the log'),
   }),
   handler: async (params) => {
     const { pipelines } = createGitLabServices();
@@ -121,7 +121,7 @@ export const retryPipelineTool: ToolDefinition = {
   description: 'Retry failed jobs in a CI/CD pipeline',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    pipeline_id: z.number().describe('Pipeline ID'),
+    pipeline_id: z.coerce.number().describe('Pipeline ID'),
   }),
   handler: async (params) => {
     const { pipelines } = createGitLabServices();
@@ -138,7 +138,7 @@ export const cancelPipelineTool: ToolDefinition = {
   description: 'Cancel a running CI/CD pipeline',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    pipeline_id: z.number().describe('Pipeline ID'),
+    pipeline_id: z.coerce.number().describe('Pipeline ID'),
   }),
   handler: async (params) => {
     const { pipelines } = createGitLabServices();
@@ -155,7 +155,7 @@ export const getJobTool: ToolDefinition = {
   description: 'Get details of a specific CI/CD job',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    job_id: z.number().describe('Job ID'),
+    job_id: z.coerce.number().describe('Job ID'),
   }),
   handler: async (params) => {
     const { pipelines } = createGitLabServices();
@@ -172,7 +172,7 @@ export const retryJobTool: ToolDefinition = {
   description: 'Retry a failed CI/CD job',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    job_id: z.number().describe('Job ID'),
+    job_id: z.coerce.number().describe('Job ID'),
   }),
   handler: async (params) => {
     const { pipelines } = createGitLabServices();
@@ -189,7 +189,7 @@ export const cancelJobTool: ToolDefinition = {
   description: 'Cancel a running CI/CD job',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    job_id: z.number().describe('Job ID'),
+    job_id: z.coerce.number().describe('Job ID'),
   }),
   handler: async (params) => {
     const { pipelines } = createGitLabServices();
@@ -209,8 +209,8 @@ export const listEnvironmentsTool: ToolDefinition = {
     name: z.string().optional().describe('Filter by exact environment name'),
     search: z.string().optional().describe('Search environments by name'),
     states: z.enum(['available', 'stopping', 'stopped']).optional().describe('Filter by state'),
-    page: z.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.number().optional().describe('Results per page (1-100)'),
+    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
+    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { pipelines } = createGitLabServices();
@@ -230,7 +230,7 @@ export const getEnvironmentTool: ToolDefinition = {
   description: 'Get details of a specific environment in a GitLab project',
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
-    environment_id: z.number().describe('Environment ID'),
+    environment_id: z.coerce.number().describe('Environment ID'),
   }),
   handler: async (params) => {
     const { pipelines } = createGitLabServices();

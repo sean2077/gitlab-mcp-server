@@ -32,10 +32,13 @@ export const getGroupTool: ToolDefinition = {
   description: 'Get details of a specific GitLab group',
   parameters: z.object({
     group_id: z.string().describe('Group ID or URL-encoded path'),
+    with_projects: z.boolean().optional().default(false).describe('Include group projects in response (can be very large). Default: false'),
   }),
   handler: async (params) => {
     const { groups } = createGitLabServices();
-    const group = await groups.getGroup(params.group_id as string);
+    const group = await groups.getGroup(params.group_id as string, {
+      with_projects: params.with_projects as boolean | undefined,
+    });
     return { content: [{ type: 'text', text: JSON.stringify(group, null, 2) }] };
   },
 };

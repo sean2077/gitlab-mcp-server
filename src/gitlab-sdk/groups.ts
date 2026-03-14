@@ -18,9 +18,14 @@ export class GitLabGroupsService extends BaseGitLabService {
     );
   }
 
-  async getGroup(groupId: string | number): Promise<GitLabGroup> {
+  async getGroup(groupId: string | number, params: {
+    with_projects?: boolean;
+  } = {}): Promise<GitLabGroup> {
     const gid = typeof groupId === 'number' ? String(groupId) : encodeURIComponent(groupId);
-    return this.fetchJson<GitLabGroup>(this.apiUrl(`groups/${gid}`));
+    const searchParams = new URLSearchParams();
+    const withProjects = params.with_projects ?? false;
+    searchParams.set('with_projects', String(withProjects));
+    return this.fetchJson<GitLabGroup>(this.apiUrl(`groups/${gid}`) + `?${searchParams.toString()}`);
   }
 
   async listGroupProjects(groupId: string | number, params: {

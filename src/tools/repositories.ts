@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
+import { coerceArray } from '../utils/zod.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listBranchesTool: ToolDefinition = {
@@ -142,13 +143,13 @@ export const pushFilesTool: ToolDefinition = {
     project_id: z.string().describe('Project ID or URL-encoded path'),
     branch: z.string().describe('Branch to commit to'),
     commit_message: z.string().describe('Commit message'),
-    actions: z.array(z.object({
+    actions: coerceArray(z.array(z.object({
       action: z.enum(['create', 'delete', 'move', 'update', 'chmod']).describe('File action'),
       file_path: z.string().describe('Path to the file'),
       content: z.string().optional().describe('File content (required for create/update)'),
       previous_path: z.string().optional().describe('Previous path (for move)'),
       encoding: z.enum(['text', 'base64']).optional().describe('Content encoding'),
-    })).describe('Array of file operations'),
+    }))).describe('Array of file operations'),
     start_branch: z.string().optional().describe('Branch to start from (if different from target)'),
   }),
   handler: async (params) => {
@@ -336,7 +337,7 @@ export const createReleaseTool: ToolDefinition = {
     name: z.string().optional().describe('Release name'),
     description: z.string().optional().describe('Release description (supports Markdown)'),
     ref: z.string().optional().describe('Commit SHA or branch to create tag from (if tag does not exist)'),
-    milestones: z.array(z.string()).optional().describe('Associated milestone titles'),
+    milestones: coerceArray(z.array(z.string())).optional().describe('Associated milestone titles'),
     released_at: z.string().optional().describe('Release date (ISO 8601)'),
   }),
   handler: async (params) => {

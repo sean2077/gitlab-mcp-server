@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
+import { coerceArray } from '../utils/zod.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listPipelinesTool: ToolDefinition = {
@@ -52,7 +53,7 @@ export const listPipelineJobsTool: ToolDefinition = {
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
     pipeline_id: z.coerce.number().describe('Pipeline ID'),
-    scope: z.array(z.enum(['created', 'waiting_for_resource', 'preparing', 'pending', 'running', 'failed', 'success', 'canceled', 'skipped', 'manual'])).optional().describe('Filter jobs by status'),
+    scope: coerceArray(z.array(z.enum(['created', 'waiting_for_resource', 'preparing', 'pending', 'running', 'failed', 'success', 'canceled', 'skipped', 'manual']))).optional().describe('Filter jobs by status'),
     include_retried: z.boolean().optional().describe('Include retried jobs'),
     page: z.coerce.number().optional().describe('Page number (1-indexed)'),
     per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
@@ -99,11 +100,11 @@ export const triggerPipelineTool: ToolDefinition = {
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
     ref: z.string().describe('Branch name or tag to run the pipeline for'),
-    variables: z.array(z.object({
+    variables: coerceArray(z.array(z.object({
       key: z.string().describe('Variable name'),
       value: z.string().describe('Variable value'),
       variable_type: z.string().optional().describe('Variable type (env_var or file)'),
-    })).optional().describe('Pipeline variables'),
+    }))).optional().describe('Pipeline variables'),
   }),
   handler: async (params) => {
     const { pipelines } = createGitLabServices();

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
+import { coerceArray } from '../utils/zod.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listMergeRequestsTool: ToolDefinition = {
@@ -58,9 +59,9 @@ export const createMergeRequestTool: ToolDefinition = {
     description: z.string().optional().describe('MR description (Markdown)'),
     source_branch: z.string().describe('Source branch name'),
     target_branch: z.string().describe('Target branch name'),
-    assignee_ids: z.array(z.coerce.number()).optional().describe('Assignee user IDs'),
-    reviewer_ids: z.array(z.coerce.number()).optional().describe('Reviewer user IDs'),
-    labels: z.array(z.string()).optional().describe('Label names'),
+    assignee_ids: coerceArray(z.array(z.coerce.number())).optional().describe('Assignee user IDs'),
+    reviewer_ids: coerceArray(z.array(z.coerce.number())).optional().describe('Reviewer user IDs'),
+    labels: coerceArray(z.array(z.string())).optional().describe('Label names'),
     milestone_id: z.coerce.number().optional().describe('Milestone ID'),
     remove_source_branch: z.boolean().optional().describe('Remove source branch after merge'),
     squash: z.boolean().optional().describe('Squash commits on merge'),
@@ -86,9 +87,9 @@ export const updateMergeRequestTool: ToolDefinition = {
     title: z.string().optional().describe('New title'),
     description: z.string().optional().describe('New description'),
     target_branch: z.string().optional().describe('New target branch'),
-    assignee_ids: z.array(z.coerce.number()).optional().describe('Assignee user IDs'),
-    reviewer_ids: z.array(z.coerce.number()).optional().describe('Reviewer user IDs'),
-    labels: z.array(z.string()).optional().describe('Label names'),
+    assignee_ids: coerceArray(z.array(z.coerce.number())).optional().describe('Assignee user IDs'),
+    reviewer_ids: coerceArray(z.array(z.coerce.number())).optional().describe('Reviewer user IDs'),
+    labels: coerceArray(z.array(z.string())).optional().describe('Label names'),
     milestone_id: z.coerce.number().nullable().optional().describe('Milestone ID'),
     state_event: z.enum(['close', 'reopen']).optional().describe('State transition'),
     remove_source_branch: z.boolean().optional().describe('Remove source branch after merge'),

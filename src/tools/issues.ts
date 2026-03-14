@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
+import { coerceArray } from '../utils/zod.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listIssuesTool: ToolDefinition = {
@@ -53,9 +54,9 @@ export const createIssueTool: ToolDefinition = {
     project_id: z.string().describe('Project ID or URL-encoded path'),
     title: z.string().describe('Issue title'),
     description: z.string().optional().describe('Issue description (Markdown)'),
-    assignee_ids: z.array(z.coerce.number()).optional().describe('Assignee user IDs'),
+    assignee_ids: coerceArray(z.array(z.coerce.number())).optional().describe('Assignee user IDs'),
     milestone_id: z.coerce.number().optional().describe('Milestone ID'),
-    labels: z.array(z.string()).optional().describe('Label names'),
+    labels: coerceArray(z.array(z.string())).optional().describe('Label names'),
     due_date: z.string().optional().describe('Due date (YYYY-MM-DD)'),
     confidential: z.boolean().optional().describe('Mark as confidential'),
   }),
@@ -75,9 +76,9 @@ export const updateIssueTool: ToolDefinition = {
     issue_iid: z.coerce.number().describe('Issue internal ID'),
     title: z.string().optional().describe('New title'),
     description: z.string().optional().describe('New description'),
-    assignee_ids: z.array(z.coerce.number()).optional().describe('Assignee user IDs'),
+    assignee_ids: coerceArray(z.array(z.coerce.number())).optional().describe('Assignee user IDs'),
     milestone_id: z.coerce.number().nullable().optional().describe('Milestone ID'),
-    labels: z.array(z.string()).optional().describe('Label names'),
+    labels: coerceArray(z.array(z.string())).optional().describe('Label names'),
     state_event: z.enum(['close', 'reopen']).optional().describe('State transition'),
     due_date: z.string().nullable().optional().describe('Due date (YYYY-MM-DD)'),
     confidential: z.boolean().optional().describe('Mark as confidential'),

@@ -20,6 +20,9 @@ export const searchUsersTool: ToolDefinition = {
     search: z.string().optional().describe('Search query'),
     username: z.string().optional().describe('Filter by exact username'),
     active: z.boolean().optional().describe('Filter by active state'),
+    blocked: z.boolean().optional().describe('Filter by blocked state'),
+    order_by: z.enum(['id', 'name', 'username', 'created_at', 'updated_at']).optional().describe('Order by field'),
+    sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
     page: z.number().optional().describe('Page number (1-indexed)'),
     per_page: z.number().optional().describe('Results per page (1-100)'),
   }),
@@ -28,7 +31,7 @@ export const searchUsersTool: ToolDefinition = {
     const result = await users.searchUsers(params);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total} users (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} users (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };

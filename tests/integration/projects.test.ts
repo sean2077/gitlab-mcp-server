@@ -12,24 +12,24 @@ describe('GitLabProjectsService', () => {
     }
   });
 
-  it('should list projects', async () => {
-    if (skipIfNotConfigured()) return;
+  it('should list projects', async (ctx) => {
+    skipIfNotConfigured(ctx);
     const result = await service.listProjects({ per_page: 5 });
     expect(result).toHaveProperty('items');
     expect(Array.isArray(result.items)).toBe(true);
   });
 
-  it('should get project by ID', async () => {
+  it('should get project by ID', async (ctx) => {
     const config = getTestConfig();
-    if (skipIfNotConfigured() || !config.testProjectId) return;
+    skipIfNotConfigured(ctx, !config.testProjectId);
     const project = await service.getProject(config.testProjectId);
     expect(project).toHaveProperty('id');
     expect(project).toHaveProperty('name');
     expect(project).toHaveProperty('web_url');
   });
 
-  it('should search projects', async () => {
-    if (skipIfNotConfigured()) return;
+  it('should search projects', async (ctx) => {
+    skipIfNotConfigured(ctx);
     const result = await service.searchProjects('test', { per_page: 5 });
     expect(result).toHaveProperty('items');
     expect(Array.isArray(result.items)).toBe(true);

@@ -57,12 +57,14 @@ export class GitLabIssuesService extends BaseGitLabService {
     confidential?: boolean;
   }): Promise<GitLabIssue> {
     const pid = encodeProjectId(projectId);
+    const { labels, ...rest } = data;
+    const body: Record<string, unknown> = { ...rest };
+    if (labels !== undefined) {
+      body.labels = labels.join(',');
+    }
     return this.fetchJson<GitLabIssue>(this.apiUrl(`projects/${pid}/issues/${issueIid}`), {
       method: 'PUT',
-      body: JSON.stringify({
-        ...data,
-        labels: data.labels?.join(','),
-      }),
+      body: JSON.stringify(body),
     });
   }
 

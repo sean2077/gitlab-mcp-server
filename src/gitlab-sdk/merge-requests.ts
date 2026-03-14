@@ -67,12 +67,14 @@ export class GitLabMergeRequestsService extends BaseGitLabService {
     draft?: boolean;
   }): Promise<GitLabMergeRequest> {
     const pid = encodeProjectId(projectId);
+    const { labels, ...rest } = data;
+    const body: Record<string, unknown> = { ...rest };
+    if (labels !== undefined) {
+      body.labels = labels.join(',');
+    }
     return this.fetchJson<GitLabMergeRequest>(this.apiUrl(`projects/${pid}/merge_requests/${mrIid}`), {
       method: 'PUT',
-      body: JSON.stringify({
-        ...data,
-        labels: data.labels?.join(','),
-      }),
+      body: JSON.stringify(body),
     });
   }
 
@@ -139,7 +141,7 @@ export class GitLabMergeRequestsService extends BaseGitLabService {
     if (sha) body.sha = sha;
     return this.fetchJson<GitLabMergeRequest>(this.apiUrl(`projects/${pid}/merge_requests/${mrIid}/approve`), {
       method: 'POST',
-      body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
+      body: JSON.stringify(body),
     });
   }
 

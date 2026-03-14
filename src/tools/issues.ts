@@ -25,7 +25,7 @@ export const listIssuesTool: ToolDefinition = {
     const result = await issues.listIssues(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total} issues (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} issues (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -111,7 +111,7 @@ export const listIssueNotesTool: ToolDefinition = {
     const result = await issues.listIssueNotes(project_id as string, issue_iid as number, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total} notes (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} notes (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -154,7 +154,7 @@ export const listIssueDiscussionsTool: ToolDefinition = {
     const result = await issues.listIssueDiscussions(project_id as string, issue_iid as number, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total} discussions (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} discussions (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };

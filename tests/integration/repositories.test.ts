@@ -14,8 +14,8 @@ describe('GitLabRepositoriesService', () => {
     }
   });
 
-  it('should list branches', async () => {
-    if (skipIfNotConfigured() || !testProjectId) return;
+  it('should list branches', async (ctx) => {
+    skipIfNotConfigured(ctx, !testProjectId);
     const result = await service.listBranches(testProjectId, { per_page: 5 });
     expect(result).toHaveProperty('items');
     expect(Array.isArray(result.items)).toBe(true);
@@ -25,8 +25,8 @@ describe('GitLabRepositoriesService', () => {
     }
   });
 
-  it('should list repository tree', async () => {
-    if (skipIfNotConfigured() || !testProjectId) return;
+  it('should list repository tree', async (ctx) => {
+    skipIfNotConfigured(ctx, !testProjectId);
     const result = await service.listTree(testProjectId, { per_page: 10 });
     expect(result).toHaveProperty('items');
     expect(Array.isArray(result.items)).toBe(true);
@@ -37,8 +37,8 @@ describe('GitLabRepositoriesService', () => {
     }
   });
 
-  it('should get file content', async () => {
-    if (skipIfNotConfigured() || !testProjectId) return;
+  it('should get file content', async (ctx) => {
+    skipIfNotConfigured(ctx, !testProjectId);
     try {
       const file = await service.getFile(testProjectId, 'README.md');
       expect(file).toHaveProperty('file_name');
@@ -53,8 +53,8 @@ describe('GitLabRepositoriesService', () => {
     }
   });
 
-  it('should compare branches', async () => {
-    if (skipIfNotConfigured() || !testProjectId) return;
+  it('should compare branches', async (ctx) => {
+    skipIfNotConfigured(ctx, !testProjectId);
     try {
       // Compare default branch with itself as a basic test
       const result = await service.compareBranches(testProjectId, 'main', 'main');

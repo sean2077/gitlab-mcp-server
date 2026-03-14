@@ -14,8 +14,8 @@ describe('GitLabPipelinesService', () => {
     }
   });
 
-  it('should list pipelines', async () => {
-    if (skipIfNotConfigured() || !testProjectId) return;
+  it('should list pipelines', async (ctx) => {
+    skipIfNotConfigured(ctx, !testProjectId);
     const result = await service.listPipelines(testProjectId, { per_page: 5 });
     expect(result).toHaveProperty('items');
     expect(Array.isArray(result.items)).toBe(true);
@@ -26,8 +26,8 @@ describe('GitLabPipelinesService', () => {
     }
   });
 
-  it('should get a specific pipeline', async () => {
-    if (skipIfNotConfigured() || !testProjectId) return;
+  it('should get a specific pipeline', async (ctx) => {
+    skipIfNotConfigured(ctx, !testProjectId);
     const list = await service.listPipelines(testProjectId, { per_page: 1 });
     if (list.items.length === 0) return;
 
@@ -38,8 +38,8 @@ describe('GitLabPipelinesService', () => {
     expect(pipeline.id).toBe(list.items[0].id);
   });
 
-  it('should list pipeline jobs', async () => {
-    if (skipIfNotConfigured() || !testProjectId) return;
+  it('should list pipeline jobs', async (ctx) => {
+    skipIfNotConfigured(ctx, !testProjectId);
     const list = await service.listPipelines(testProjectId, { per_page: 1 });
     if (list.items.length === 0) return;
 
@@ -54,8 +54,8 @@ describe('GitLabPipelinesService', () => {
     }
   });
 
-  it('should get job log', async () => {
-    if (skipIfNotConfigured() || !testProjectId) return;
+  it('should get job log', async (ctx) => {
+    skipIfNotConfigured(ctx, !testProjectId);
     const pipelineList = await service.listPipelines(testProjectId, { per_page: 1 });
     if (pipelineList.items.length === 0) return;
 
@@ -66,8 +66,8 @@ describe('GitLabPipelinesService', () => {
     expect(typeof log).toBe('string');
   });
 
-  it('should truncate job log with tail_lines', async () => {
-    if (skipIfNotConfigured() || !testProjectId) return;
+  it('should truncate job log with tail_lines', async (ctx) => {
+    skipIfNotConfigured(ctx, !testProjectId);
     const pipelineList = await service.listPipelines(testProjectId, { per_page: 1 });
     if (pipelineList.items.length === 0) return;
 

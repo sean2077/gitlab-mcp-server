@@ -14,11 +14,9 @@ export function getTestConfig() {
   };
 }
 
-export function skipIfNotConfigured(): boolean {
+export function skipIfNotConfigured(ctx: { skip: () => never }, ...conditions: boolean[]): void {
   const cfg = getTestConfig();
-  if (!cfg.isConfigured) {
-    console.log('Skipping: configure GitLab credentials in tests/.env.test');
-    return true;
+  if (!cfg.isConfigured || conditions.some(c => c)) {
+    ctx.skip();
   }
-  return false;
 }

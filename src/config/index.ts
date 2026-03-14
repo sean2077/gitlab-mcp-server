@@ -13,10 +13,13 @@ export function getConfig(): GitLabConfig {
 
   const baseUrl = (process.env.GITLAB_URL || 'https://gitlab.com').replace(/\/$/, '');
 
+  const rawTimeout = parseInt(process.env.GITLAB_REQUEST_TIMEOUT || '30000', 10);
+  const rawPerPage = parseInt(process.env.GITLAB_DEFAULT_PER_PAGE || '20', 10);
+
   return {
     baseUrl,
     token,
-    requestTimeout: parseInt(process.env.GITLAB_REQUEST_TIMEOUT || '30000', 10),
-    defaultPerPage: parseInt(process.env.GITLAB_DEFAULT_PER_PAGE || '20', 10),
+    requestTimeout: isNaN(rawTimeout) || rawTimeout <= 0 ? 30000 : rawTimeout,
+    defaultPerPage: isNaN(rawPerPage) || rawPerPage <= 0 ? 20 : rawPerPage,
   };
 }

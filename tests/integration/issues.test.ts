@@ -16,15 +16,15 @@ describe('GitLabIssuesService', () => {
     }
   });
 
-  it('should list issues', async () => {
-    if (skipIfNotConfigured() || !testProjectId) return;
+  it('should list issues', async (ctx) => {
+    skipIfNotConfigured(ctx, !testProjectId);
     const result = await service.listIssues(testProjectId, { per_page: 5 });
     expect(result).toHaveProperty('items');
     expect(Array.isArray(result.items)).toBe(true);
   });
 
-  it('should list issues with state filter', async () => {
-    if (skipIfNotConfigured() || !testProjectId) return;
+  it('should list issues with state filter', async (ctx) => {
+    skipIfNotConfigured(ctx, !testProjectId);
     const result = await service.listIssues(testProjectId, { state: 'opened', per_page: 5 });
     expect(result).toHaveProperty('items');
     for (const issue of result.items) {
@@ -32,8 +32,8 @@ describe('GitLabIssuesService', () => {
     }
   });
 
-  it('should get a specific issue', async () => {
-    if (skipIfNotConfigured() || !testProjectId || !testIssueIid) return;
+  it('should get a specific issue', async (ctx) => {
+    skipIfNotConfigured(ctx, !testProjectId, !testIssueIid);
     const issue = await service.getIssue(testProjectId, testIssueIid);
     expect(issue).toHaveProperty('id');
     expect(issue).toHaveProperty('iid');
@@ -41,8 +41,8 @@ describe('GitLabIssuesService', () => {
     expect(issue.iid).toBe(testIssueIid);
   });
 
-  it('should list issue notes', async () => {
-    if (skipIfNotConfigured() || !testProjectId || !testIssueIid) return;
+  it('should list issue notes', async (ctx) => {
+    skipIfNotConfigured(ctx, !testProjectId, !testIssueIid);
     const result = await service.listIssueNotes(testProjectId, testIssueIid, { per_page: 5 });
     expect(result).toHaveProperty('items');
     expect(Array.isArray(result.items)).toBe(true);

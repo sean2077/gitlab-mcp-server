@@ -8,6 +8,7 @@ export const listBranchesTool: ToolDefinition = {
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
     search: z.string().optional().describe('Search branches by name'),
+    regex: z.string().optional().describe('Filter branches by regex pattern'),
     page: z.number().optional().describe('Page number (1-indexed)'),
     per_page: z.number().optional().describe('Results per page (1-100)'),
   }),
@@ -17,7 +18,7 @@ export const listBranchesTool: ToolDefinition = {
     const result = await repositories.listBranches(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total} branches (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} branches (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -79,7 +80,7 @@ export const listRepositoryTreeTool: ToolDefinition = {
     const result = await repositories.listTree(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total} items (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} items (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -196,7 +197,7 @@ export const listCommitsTool: ToolDefinition = {
     const result = await repositories.listCommits(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total} commits (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} commits (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -209,7 +210,7 @@ export const listTagsTool: ToolDefinition = {
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
     search: z.string().optional().describe('Search tags by name'),
-    order_by: z.enum(['name', 'updated', 'version']).optional().describe('Order by field'),
+    order_by: z.enum(['name', 'updated_at', 'version']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
     page: z.number().optional().describe('Page number (1-indexed)'),
     per_page: z.number().optional().describe('Results per page (1-100)'),
@@ -220,7 +221,7 @@ export const listTagsTool: ToolDefinition = {
     const result = await repositories.listTags(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total} tags (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} tags (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -263,7 +264,7 @@ export const listProtectedBranchesTool: ToolDefinition = {
     const result = await repositories.listProtectedBranches(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total} protected branches (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} protected branches (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -319,7 +320,7 @@ export const listReleasesTool: ToolDefinition = {
     const result = await repositories.listReleases(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total} releases (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} releases (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };

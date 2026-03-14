@@ -3,6 +3,19 @@ import type { PaginatedResponse } from '../types/index.js';
 
 export { encodeProjectId };
 
+export class GitLabApiError extends Error {
+  constructor(public readonly status: number, message: string) {
+    super(message);
+    this.name = 'GitLabApiError';
+  }
+}
+
+export function parseRetryAfter(header: string | null): number {
+  const raw = header || '5';
+  const parsed = Number(raw);
+  return isNaN(parsed) || parsed <= 0 ? 5 : parsed;
+}
+
 export class BaseGitLabService {
   protected baseUrl: string;
   protected token: string;
@@ -34,7 +47,8 @@ export class BaseGitLabService {
       });
 
       if (response.status === 429 && retries > 0) {
-        const retryAfter = parseInt(response.headers.get('Retry-After') || '5', 10);
+        clearTimeout(timeoutId);
+        const retryAfter = parseRetryAfter(response.headers.get('Retry-After'));
         await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
         return this.fetchJson<T>(url, init, retries - 1);
       }
@@ -61,7 +75,8 @@ export class BaseGitLabService {
       });
 
       if (response.status === 429 && retries > 0) {
-        const retryAfter = parseInt(response.headers.get('Retry-After') || '5', 10);
+        clearTimeout(timeoutId);
+        const retryAfter = parseRetryAfter(response.headers.get('Retry-After'));
         await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
         return this.fetchText(url, init, retries - 1);
       }
@@ -104,7 +119,8 @@ export class BaseGitLabService {
       });
 
       if (response.status === 429 && retries > 0) {
-        const retryAfter = parseInt(response.headers.get('Retry-After') || '5', 10);
+        clearTimeout(timeoutId);
+        const retryAfter = parseRetryAfter(response.headers.get('Retry-After'));
         await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
         return this.fetchWithPagination<T>(endpoint, params, retries - 1);
       }
@@ -114,9 +130,14 @@ export class BaseGitLabService {
       }
 
       const items = await response.json() as T[];
-      const total = parseInt(response.headers.get('X-Total') || '0', 10);
-      const totalPages = parseInt(response.headers.get('X-Total-Pages') || '1', 10);
       const currentPage = parseInt(response.headers.get('X-Page') || String(page), 10);
+      const xTotal = response.headers.get('X-Total');
+      const xTotalPages = response.headers.get('X-Total-Pages');
+      const xNextPage = response.headers.get('X-Next-Page');
+      const total = xTotal ? parseInt(xTotal, 10) : -1;
+      const totalPages = xTotalPages
+        ? parseInt(xTotalPages, 10)
+        : (xNextPage ? currentPage + 1 : currentPage);
 
       return { items, total, page: currentPage, totalPages };
     } finally {
@@ -156,6 +177,6 @@ export class BaseGitLabService {
       case 422: message = message || 'Validation failed.'; break;
     }
 
-    throw new Error(`GitLab API Error (${response.status}): ${message}`);
+    throw new GitLabApiError(response.status, `GitLab API Error (${response.status}): ${message}`);
   }
 }

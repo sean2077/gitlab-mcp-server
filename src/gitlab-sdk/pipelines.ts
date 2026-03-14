@@ -1,4 +1,4 @@
-import { BaseGitLabService, encodeProjectId } from './base.js';
+import { BaseGitLabService, encodeProjectId, parseRetryAfter } from './base.js';
 import type { GitLabPipeline, GitLabJob, GitLabEnvironment, PaginatedResponse } from '../types/index.js';
 
 export class GitLabPipelinesService extends BaseGitLabService {
@@ -56,7 +56,8 @@ export class GitLabPipelinesService extends BaseGitLabService {
       });
 
       if (response.status === 429 && retries > 0) {
-        const retryAfter = parseInt(response.headers.get('Retry-After') || '5', 10);
+        clearTimeout(timeoutId);
+        const retryAfter = parseRetryAfter(response.headers.get('Retry-After'));
         await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
         return this.listPipelineJobs(projectId, pipelineId, params, retries - 1);
       }
@@ -66,9 +67,14 @@ export class GitLabPipelinesService extends BaseGitLabService {
       }
 
       const items = await response.json() as GitLabJob[];
-      const total = parseInt(response.headers.get('X-Total') || '0', 10);
-      const totalPages = parseInt(response.headers.get('X-Total-Pages') || '1', 10);
       const currentPage = parseInt(response.headers.get('X-Page') || String(page), 10);
+      const xTotal = response.headers.get('X-Total');
+      const xTotalPages = response.headers.get('X-Total-Pages');
+      const xNextPage = response.headers.get('X-Next-Page');
+      const total = xTotal ? parseInt(xTotal, 10) : -1;
+      const totalPages = xTotalPages
+        ? parseInt(xTotalPages, 10)
+        : (xNextPage ? currentPage + 1 : currentPage);
 
       return { items, total, page: currentPage, totalPages };
     } finally {

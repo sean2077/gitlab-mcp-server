@@ -136,7 +136,7 @@ export class GitLabProjectsService extends BaseGitLabService {
     if (namespace) body.namespace_path = namespace;
     return this.fetchJson<GitLabFork>(this.apiUrl(`projects/${pid}/fork`), {
       method: 'POST',
-      body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
+      body: JSON.stringify(body),
     });
   }
 

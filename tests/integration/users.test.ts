@@ -12,16 +12,16 @@ describe('GitLabUsersService', () => {
     }
   });
 
-  it('should get current user', async () => {
-    if (skipIfNotConfigured()) return;
+  it('should get current user', async (ctx) => {
+    skipIfNotConfigured(ctx);
     const user = await service.getCurrentUser();
     expect(user).toHaveProperty('id');
     expect(user).toHaveProperty('username');
     expect(user).toHaveProperty('name');
   });
 
-  it('should search users', async () => {
-    if (skipIfNotConfigured()) return;
+  it('should search users', async (ctx) => {
+    skipIfNotConfigured(ctx);
     const result = await service.searchUsers({ per_page: 5 });
     expect(result).toHaveProperty('items');
     expect(Array.isArray(result.items)).toBe(true);

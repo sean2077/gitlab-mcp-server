@@ -1,4 +1,4 @@
-import { BaseGitLabService, encodeProjectId } from './base.js';
+import { BaseGitLabService, encodeProjectId, GitLabApiError } from './base.js';
 import type { GitLabBranch, GitLabTreeItem, GitLabFileContent, GitLabCompareResult, GitLabCommit, GitLabTag, GitLabProtectedBranch, GitLabRelease, PaginatedResponse, FileOperation } from '../types/index.js';
 
 export class GitLabRepositoriesService extends BaseGitLabService {
@@ -34,6 +34,7 @@ export class GitLabRepositoriesService extends BaseGitLabService {
     // Decode base64 content
     if (data.content && data.encoding === 'base64') {
       data.content = Buffer.from(data.content, 'base64').toString('utf8');
+      data.encoding = 'utf-8';
     }
 
     return data;
@@ -72,14 +73,13 @@ export class GitLabRepositoriesService extends BaseGitLabService {
     const encodedPath = encodeURIComponent(filePath);
     const url = this.apiUrl(`projects/${pid}/repository/files/${encodedPath}`);
 
-    // Check if file exists to decide POST vs PUT
+    // Check if file exists to decide POST (create) vs PUT (update)
     let method = 'POST';
     try {
       await this.getFile(projectId, filePath, data.branch);
       method = 'PUT';
     } catch (err) {
-      // Only swallow 404 (file not found); re-throw other errors
-      if (err instanceof Error && !err.message.includes('(404)')) {
+      if (!(err instanceof GitLabApiError && err.status === 404)) {
         throw err;
       }
     }

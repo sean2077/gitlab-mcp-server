@@ -22,7 +22,7 @@ export const listPipelinesTool: ToolDefinition = {
     const result = await pipelines.listPipelines(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total} pipelines (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} pipelines (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -52,6 +52,8 @@ export const listPipelineJobsTool: ToolDefinition = {
   parameters: z.object({
     project_id: z.string().describe('Project ID or URL-encoded path'),
     pipeline_id: z.number().describe('Pipeline ID'),
+    scope: z.array(z.enum(['created', 'waiting_for_resource', 'preparing', 'pending', 'running', 'failed', 'success', 'canceled', 'skipped', 'manual'])).optional().describe('Filter jobs by status'),
+    include_retried: z.boolean().optional().describe('Include retried jobs'),
     page: z.number().optional().describe('Page number (1-indexed)'),
     per_page: z.number().optional().describe('Results per page (1-100)'),
   }),
@@ -65,7 +67,7 @@ export const listPipelineJobsTool: ToolDefinition = {
     );
     return {
       content: [
-        { type: 'text', text: `Found ${result.total} jobs (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} jobs (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -216,7 +218,7 @@ export const listEnvironmentsTool: ToolDefinition = {
     const result = await pipelines.listEnvironments(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total} environments (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} environments (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };

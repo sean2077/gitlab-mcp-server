@@ -8,3 +8,5 @@ dist/
 tests/.env.test
 .DS_Store
 .claude.local.md
+.mcp.json
+CLAUDE.md

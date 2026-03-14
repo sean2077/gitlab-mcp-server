@@ -13,6 +13,7 @@ export const listProjectsTool: ToolDefinition = {
     visibility: z.enum(['public', 'internal', 'private']).optional().describe('Filter by visibility'),
     order_by: z.enum(['id', 'name', 'path', 'created_at', 'updated_at', 'last_activity_at']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
+    simple: z.boolean().optional().default(true).describe('Return only limited fields (id, name, path, namespace, etc). Set to false for full details'),
     page: z.number().optional().describe('Page number (1-indexed)'),
     per_page: z.number().optional().describe('Results per page (1-100)'),
   }),
@@ -46,12 +47,14 @@ export const searchProjectsTool: ToolDefinition = {
   description: 'Search for GitLab projects by name',
   parameters: z.object({
     search: z.string().describe('Search query'),
+    simple: z.boolean().optional().default(true).describe('Return only limited fields. Set to false for full details'),
     page: z.number().optional().describe('Page number (1-indexed)'),
     per_page: z.number().optional().describe('Results per page (1-100)'),
   }),
   handler: async (params) => {
     const { projects } = createGitLabServices();
     const result = await projects.searchProjects(params.search as string, {
+      simple: params.simple as boolean | undefined,
       page: params.page as number | undefined,
       per_page: params.per_page as number | undefined,
     });

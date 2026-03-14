@@ -51,6 +51,7 @@ export const listGroupProjectsTool: ToolDefinition = {
     order_by: z.enum(['id', 'name', 'path', 'created_at', 'updated_at', 'last_activity_at']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
     include_subgroups: z.boolean().optional().describe('Include projects from subgroups'),
+    simple: z.boolean().optional().default(true).describe('Return only limited fields. Set to false for full details'),
     page: z.number().optional().describe('Page number (1-indexed)'),
     per_page: z.number().optional().describe('Results per page (1-100)'),
   }),

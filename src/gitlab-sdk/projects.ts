@@ -10,6 +10,7 @@ export class GitLabProjectsService extends BaseGitLabService {
     visibility?: string;
     order_by?: string;
     sort?: string;
+    simple?: boolean;
     page?: number;
     per_page?: number;
   } = {}): Promise<PaginatedResponse<GitLabProject>> {
@@ -23,6 +24,7 @@ export class GitLabProjectsService extends BaseGitLabService {
   }
 
   async searchProjects(query: string, params: {
+    simple?: boolean;
     page?: number;
     per_page?: number;
   } = {}): Promise<PaginatedResponse<GitLabProject>> {

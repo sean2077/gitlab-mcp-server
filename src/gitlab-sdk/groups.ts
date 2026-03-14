@@ -30,6 +30,7 @@ export class GitLabGroupsService extends BaseGitLabService {
     order_by?: string;
     sort?: string;
     include_subgroups?: boolean;
+    simple?: boolean;
     page?: number;
     per_page?: number;
   } = {}): Promise<PaginatedResponse<GitLabProject>> {

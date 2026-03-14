@@ -26,7 +26,16 @@ export class GitLabRepositoriesService extends BaseGitLabService {
   async getFile(projectId: string | number, filePath: string, ref?: string): Promise<GitLabFileContent> {
     const pid = encodeProjectId(projectId);
     const encodedPath = encodeURIComponent(filePath);
-    const refParam = ref ? `?ref=${encodeURIComponent(ref)}` : '';
+
+    // GitLab API requires ref parameter; fall back to project default branch
+    let resolvedRef = ref;
+    if (!resolvedRef) {
+      const project = await this.fetchJson<{ default_branch: string }>(
+        this.apiUrl(`projects/${pid}`),
+      );
+      resolvedRef = project.default_branch;
+    }
+    const refParam = `?ref=${encodeURIComponent(resolvedRef)}`;
     const data = await this.fetchJson<GitLabFileContent>(
       this.apiUrl(`projects/${pid}/repository/files/${encodedPath}${refParam}`),
     );

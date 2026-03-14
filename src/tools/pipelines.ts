@@ -22,7 +22,7 @@ export const listPipelinesTool: ToolDefinition = {
     const result = await pipelines.listPipelines(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} pipelines (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} pipelines (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -67,7 +67,7 @@ export const listPipelineJobsTool: ToolDefinition = {
     );
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} jobs (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} jobs (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -218,7 +218,7 @@ export const listEnvironmentsTool: ToolDefinition = {
     const result = await pipelines.listEnvironments(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} environments (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} environments (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };

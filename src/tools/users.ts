@@ -31,7 +31,7 @@ export const searchUsersTool: ToolDefinition = {
     const result = await users.searchUsers(params);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} users (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} users (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };

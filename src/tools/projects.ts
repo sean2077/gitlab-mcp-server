@@ -22,7 +22,7 @@ export const listProjectsTool: ToolDefinition = {
     const result = await projects.listProjects(params);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} projects (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} projects (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -60,7 +60,7 @@ export const searchProjectsTool: ToolDefinition = {
     });
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} projects (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} projects (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -82,7 +82,7 @@ export const listProjectMembersTool: ToolDefinition = {
     const result = await projects.listProjectMembers(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} members (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} members (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -105,7 +105,7 @@ export const listLabelsTool: ToolDefinition = {
     const result = await projects.listLabels(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} labels (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} labels (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -151,7 +151,7 @@ export const listMilestonesTool: ToolDefinition = {
     const result = await projects.listMilestones(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} milestones (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} milestones (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -261,7 +261,7 @@ export const getProjectEventsTool: ToolDefinition = {
     const result = await projects.getProjectEvents(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} events (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} events (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };

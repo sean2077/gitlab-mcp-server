@@ -20,7 +20,7 @@ export const listGroupsTool: ToolDefinition = {
     const result = await groups.listGroups(params);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} groups (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} groups (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -61,7 +61,7 @@ export const listGroupProjectsTool: ToolDefinition = {
     const result = await groups.listGroupProjects(group_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} projects (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} projects (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -83,7 +83,7 @@ export const listGroupMembersTool: ToolDefinition = {
     const result = await groups.listGroupMembers(group_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} members (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} members (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -109,7 +109,7 @@ export const listGroupSubgroupsTool: ToolDefinition = {
     const result = await groups.listGroupSubgroups(group_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} subgroups (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} subgroups (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };

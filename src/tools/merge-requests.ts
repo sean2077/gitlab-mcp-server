@@ -28,7 +28,7 @@ export const listMergeRequestsTool: ToolDefinition = {
     const result = await mergeRequests.listMergeRequests(project_id as string, options);
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} merge requests (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} merge requests (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -150,7 +150,7 @@ export const getMergeRequestDiffsTool: ToolDefinition = {
     );
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} diffs (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} diffs (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -178,7 +178,7 @@ export const listMRNotesTool: ToolDefinition = {
     );
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} notes (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} notes (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -223,7 +223,7 @@ export const getMergeRequestCommitsTool: ToolDefinition = {
     );
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} commits (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} commits (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };
@@ -304,7 +304,7 @@ export const listMRDiscussionsTool: ToolDefinition = {
     );
     return {
       content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : 'unknown'} discussions (page ${result.page}/${result.totalPages})` },
+        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} discussions (page ${result.page}/${result.totalPages})` },
         { type: 'text', text: JSON.stringify(result.items, null, 2) },
       ],
     };

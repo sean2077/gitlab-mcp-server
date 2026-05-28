@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
-import { coercedBoolean } from '../utils/zod.js';
+import { coercedBoolean, pageParam, perPageParam } from '../utils/zod.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const getCurrentUserTool: ToolDefinition = {
@@ -20,12 +20,12 @@ export const searchUsersTool: ToolDefinition = {
   parameters: z.object({
     search: z.string().optional().describe('Search query'),
     username: z.string().optional().describe('Filter by exact username'),
-    active: z.boolean().optional().describe('Filter by active state'),
-    blocked: z.boolean().optional().describe('Filter by blocked state'),
+    active: coercedBoolean().optional().describe('Filter by active state'),
+    blocked: coercedBoolean().optional().describe('Filter by blocked state'),
     order_by: z.enum(['id', 'name', 'username', 'created_at', 'updated_at']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
-    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
+    page: pageParam(),
+    per_page: perPageParam(),
   }),
   handler: async (params) => {
     const { users } = createGitLabServices();

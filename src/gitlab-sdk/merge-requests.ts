@@ -202,7 +202,7 @@ export class GitLabMergeRequestsService extends BaseGitLabService {
     const pid = encodeProjectId(projectId);
     return this.fetchJson<GitLabMergeRequest>(this.apiUrl(`projects/${pid}/merge_requests/${mrIid}/merge`), {
       method: 'PUT',
-      body: JSON.stringify({ ...params, merge_when_pipeline_succeeds: true }),
+      body: JSON.stringify({ ...params, auto_merge: true }),
     });
   }
 

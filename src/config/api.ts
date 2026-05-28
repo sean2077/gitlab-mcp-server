@@ -1,6 +1,6 @@
 export const SERVER_CONFIG = {
   name: 'gitlab-mcp-server',
-  version: '1.0.0',
+  version: '1.0.1',
 };
 
 export function getGitLabApiUrl(baseUrl: string, endpoint: string): string {

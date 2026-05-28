@@ -26,15 +26,7 @@ export class GitLabRepositoriesService extends BaseGitLabService {
   async getFile(projectId: string | number, filePath: string, ref?: string): Promise<GitLabFileContent> {
     const pid = encodeProjectId(projectId);
     const encodedPath = encodeURIComponent(filePath);
-
-    // GitLab API requires ref parameter; fall back to project default branch
-    let resolvedRef = ref;
-    if (!resolvedRef) {
-      const project = await this.fetchJson<{ default_branch: string }>(
-        this.apiUrl(`projects/${pid}`),
-      );
-      resolvedRef = project.default_branch;
-    }
+    const resolvedRef = ref || 'HEAD';
     const refParam = `?ref=${encodeURIComponent(resolvedRef)}`;
     const data = await this.fetchJson<GitLabFileContent>(
       this.apiUrl(`projects/${pid}/repository/files/${encodedPath}${refParam}`),
@@ -77,10 +69,25 @@ export class GitLabRepositoriesService extends BaseGitLabService {
     content: string;
     commit_message: string;
     previous_path?: string;
-  }): Promise<{ file_path: string; branch: string; commit_id: string }> {
+  }): Promise<{ file_path: string; branch: string; commit_id?: string } | GitLabCommit> {
     const pid = encodeProjectId(projectId);
     const encodedPath = encodeURIComponent(filePath);
     const url = this.apiUrl(`projects/${pid}/repository/files/${encodedPath}`);
+
+    if (data.previous_path && data.previous_path !== filePath) {
+      return this.pushFiles(projectId, {
+        branch: data.branch,
+        commit_message: data.commit_message,
+        actions: [{
+          action: 'move',
+          file_path: filePath,
+          previous_path: data.previous_path,
+          content: data.content,
+        }],
+      });
+    }
+
+    const { previous_path: _previousPath, ...fileData } = data;
 
     // Check if file exists to decide POST (create) vs PUT (update)
     let method = 'POST';
@@ -93,9 +100,9 @@ export class GitLabRepositoriesService extends BaseGitLabService {
       }
     }
 
-    return this.fetchJson<{ file_path: string; branch: string; commit_id: string }>(url, {
+    return this.fetchJson<{ file_path: string; branch: string; commit_id?: string }>(url, {
       method,
-      body: JSON.stringify(data),
+      body: JSON.stringify(fileData),
     });
   }
 

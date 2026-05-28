@@ -1,13 +1,13 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
-import { coerceArray, coercedBoolean } from '../utils/zod.js';
+import { coerceArray, coercedBoolean, gitLabIdOrPath, pageParam, perPageParam } from '../utils/zod.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listIssuesTool: ToolDefinition = {
   name: 'gitlab_list_issues',
   description: 'List issues for a GitLab project with filtering options',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     state: z.enum(['opened', 'closed', 'all']).optional().describe('Filter by state'),
     labels: z.string().optional().describe('Comma-separated label names'),
     milestone: z.string().optional().describe('Milestone title'),
@@ -17,8 +17,8 @@ export const listIssuesTool: ToolDefinition = {
     search: z.string().optional().describe('Search in title and description'),
     order_by: z.enum(['created_at', 'updated_at', 'priority', 'due_date', 'label_priority']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
-    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
+    page: pageParam(),
+    per_page: perPageParam(),
   }),
   handler: async (params) => {
     const { issues } = createGitLabServices();
@@ -37,7 +37,7 @@ export const getIssueTool: ToolDefinition = {
   name: 'gitlab_get_issue',
   description: 'Get a specific issue from a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     issue_iid: z.coerce.number().describe('Issue internal ID'),
   }),
   handler: async (params) => {
@@ -51,7 +51,7 @@ export const createIssueTool: ToolDefinition = {
   name: 'gitlab_create_issue',
   description: 'Create a new issue in a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     title: z.string().describe('Issue title'),
     description: z.string().optional().describe('Issue description (Markdown)'),
     assignee_ids: coerceArray(z.array(z.coerce.number())).optional().describe('Assignee user IDs'),
@@ -72,7 +72,7 @@ export const updateIssueTool: ToolDefinition = {
   name: 'gitlab_update_issue',
   description: 'Update an existing issue in a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     issue_iid: z.coerce.number().describe('Issue internal ID'),
     title: z.string().optional().describe('New title'),
     description: z.string().optional().describe('New description'),
@@ -99,12 +99,12 @@ export const listIssueNotesTool: ToolDefinition = {
   name: 'gitlab_list_issue_notes',
   description: 'List comments/notes on a GitLab issue',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     issue_iid: z.coerce.number().describe('Issue internal ID'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
     order_by: z.enum(['created_at', 'updated_at']).optional().describe('Order by field'),
-    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
+    page: pageParam(),
+    per_page: perPageParam(),
   }),
   handler: async (params) => {
     const { issues } = createGitLabServices();
@@ -123,7 +123,7 @@ export const createIssueNoteTool: ToolDefinition = {
   name: 'gitlab_create_issue_note',
   description: 'Add a comment/note to a GitLab issue',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     issue_iid: z.coerce.number().describe('Issue internal ID'),
     body: z.string().describe('Note content (Markdown)'),
     internal: coercedBoolean().optional().describe('Create as internal note'),
@@ -144,10 +144,10 @@ export const listIssueDiscussionsTool: ToolDefinition = {
   name: 'gitlab_list_issue_discussions',
   description: 'List all discussions (threaded comments) on a GitLab issue',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     issue_iid: z.coerce.number().describe('Issue internal ID'),
-    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
+    page: pageParam(),
+    per_page: perPageParam(),
   }),
   handler: async (params) => {
     const { issues } = createGitLabServices();

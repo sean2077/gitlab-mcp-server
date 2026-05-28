@@ -11,9 +11,20 @@ export class GitLabApiError extends Error {
 }
 
 export function parseRetryAfter(header: string | null): number {
-  const raw = header || '5';
-  const parsed = Number(raw);
-  return isNaN(parsed) || parsed <= 0 ? 5 : parsed;
+  if (!header) return 5;
+
+  const parsedSeconds = Number(header);
+  if (!Number.isNaN(parsedSeconds) && parsedSeconds > 0) {
+    return parsedSeconds;
+  }
+
+  const parsedDate = Date.parse(header);
+  if (!Number.isNaN(parsedDate)) {
+    const secondsUntilDate = Math.ceil((parsedDate - Date.now()) / 1000);
+    return secondsUntilDate > 0 ? secondsUntilDate : 5;
+  }
+
+  return 5;
 }
 
 export class BaseGitLabService {

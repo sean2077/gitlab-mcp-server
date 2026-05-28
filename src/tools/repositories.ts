@@ -1,17 +1,17 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
-import { coerceArray, coercedBoolean } from '../utils/zod.js';
+import { coerceArray, coercedBoolean, gitLabIdOrPath, pageParam, perPageParam } from '../utils/zod.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listBranchesTool: ToolDefinition = {
   name: 'gitlab_list_branches',
   description: 'List branches in a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     search: z.string().optional().describe('Search branches by name'),
     regex: z.string().optional().describe('Filter branches by regex pattern'),
-    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
+    page: pageParam(),
+    per_page: perPageParam(),
   }),
   handler: async (params) => {
     const { repositories } = createGitLabServices();
@@ -30,7 +30,7 @@ export const createBranchTool: ToolDefinition = {
   name: 'gitlab_create_branch',
   description: 'Create a new branch in a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     branch: z.string().describe('New branch name'),
     ref: z.string().describe('Source branch/tag/commit SHA to create from'),
   }),
@@ -49,7 +49,7 @@ export const getFileTool: ToolDefinition = {
   name: 'gitlab_get_file',
   description: 'Get the contents of a file from a GitLab project repository',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     file_path: z.string().describe('Path to the file in the repository'),
     ref: z.string().optional().describe('Branch, tag, or commit SHA (defaults to default branch)'),
   }),
@@ -68,12 +68,12 @@ export const listRepositoryTreeTool: ToolDefinition = {
   name: 'gitlab_list_repository_tree',
   description: 'List files and directories in a GitLab project repository',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     path: z.string().optional().describe('Path inside the repository'),
     ref: z.string().optional().describe('Branch, tag, or commit SHA'),
     recursive: coercedBoolean().optional().describe('List recursively'),
-    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
+    page: pageParam(),
+    per_page: perPageParam(),
   }),
   handler: async (params) => {
     const { repositories } = createGitLabServices();
@@ -92,7 +92,7 @@ export const compareBranchesTool: ToolDefinition = {
   name: 'gitlab_compare_branches',
   description: 'Compare two branches, tags, or commits in a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     from: z.string().describe('Base branch/tag/commit SHA'),
     to: z.string().describe('Target branch/tag/commit SHA'),
     straight: coercedBoolean().optional().describe('Use straight comparison instead of merge base'),
@@ -113,7 +113,7 @@ export const createOrUpdateFileTool: ToolDefinition = {
   name: 'gitlab_create_or_update_file',
   description: 'Create or update a single file in a GitLab project repository',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     file_path: z.string().describe('Path to the file in the repository'),
     branch: z.string().describe('Branch to commit to'),
     content: z.string().describe('File content'),
@@ -140,7 +140,7 @@ export const pushFilesTool: ToolDefinition = {
   name: 'gitlab_push_files',
   description: 'Push multiple files to a GitLab project in a single commit',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     branch: z.string().describe('Branch to commit to'),
     commit_message: z.string().describe('Commit message'),
     actions: coerceArray(z.array(z.object({
@@ -167,7 +167,7 @@ export const deleteBranchTool: ToolDefinition = {
   name: 'gitlab_delete_branch',
   description: 'Delete a branch from a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     branch: z.string().describe('Branch name to delete'),
   }),
   handler: async (params) => {
@@ -181,7 +181,7 @@ export const listCommitsTool: ToolDefinition = {
   name: 'gitlab_list_commits',
   description: 'Get commit history for a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     ref_name: z.string().optional().describe('Branch name, tag, or commit SHA'),
     since: z.string().optional().describe('Only commits after this date (ISO 8601)'),
     until: z.string().optional().describe('Only commits before this date (ISO 8601)'),
@@ -189,8 +189,8 @@ export const listCommitsTool: ToolDefinition = {
     all: coercedBoolean().optional().describe('Retrieve all commits from all branches'),
     with_stats: coercedBoolean().optional().describe('Include commit stats'),
     first_parent: coercedBoolean().optional().describe('Follow only first parent on merges'),
-    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
+    page: pageParam(),
+    per_page: perPageParam(),
   }),
   handler: async (params) => {
     const { repositories } = createGitLabServices();
@@ -209,12 +209,12 @@ export const listTagsTool: ToolDefinition = {
   name: 'gitlab_list_tags',
   description: 'List tags for a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     search: z.string().optional().describe('Search tags by name'),
     order_by: z.enum(['name', 'updated_at', 'version']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
-    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
+    page: pageParam(),
+    per_page: perPageParam(),
   }),
   handler: async (params) => {
     const { repositories } = createGitLabServices();
@@ -233,7 +233,7 @@ export const createTagTool: ToolDefinition = {
   name: 'gitlab_create_tag',
   description: 'Create a new tag in a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     tag_name: z.string().describe('Tag name'),
     ref: z.string().describe('Source branch or commit SHA to tag'),
     message: z.string().optional().describe('Annotation message (creates annotated tag)'),
@@ -254,10 +254,10 @@ export const listProtectedBranchesTool: ToolDefinition = {
   name: 'gitlab_list_protected_branches',
   description: 'List protected branches in a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     search: z.string().optional().describe('Search by branch name'),
-    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
+    page: pageParam(),
+    per_page: perPageParam(),
   }),
   handler: async (params) => {
     const { repositories } = createGitLabServices();
@@ -276,7 +276,7 @@ export const protectBranchTool: ToolDefinition = {
   name: 'gitlab_protect_branch',
   description: 'Protect a branch in a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     name: z.string().describe('Branch name or wildcard pattern to protect'),
     push_access_level: z.coerce.number().optional().describe('Access level for push (0=No access, 30=Developer, 40=Maintainer)'),
     merge_access_level: z.coerce.number().optional().describe('Access level for merge (0=No access, 30=Developer, 40=Maintainer)'),
@@ -295,7 +295,7 @@ export const unprotectBranchTool: ToolDefinition = {
   name: 'gitlab_unprotect_branch',
   description: 'Unprotect a branch in a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     name: z.string().describe('Branch name to unprotect'),
   }),
   handler: async (params) => {
@@ -309,11 +309,11 @@ export const listReleasesTool: ToolDefinition = {
   name: 'gitlab_list_releases',
   description: 'List releases for a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     order_by: z.enum(['released_at', 'created_at']).optional().describe('Order by field'),
     sort: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
-    page: z.coerce.number().optional().describe('Page number (1-indexed)'),
-    per_page: z.coerce.number().optional().describe('Results per page (1-100)'),
+    page: pageParam(),
+    per_page: perPageParam(),
   }),
   handler: async (params) => {
     const { repositories } = createGitLabServices();
@@ -332,7 +332,7 @@ export const createReleaseTool: ToolDefinition = {
   name: 'gitlab_create_release',
   description: 'Create a new release for a GitLab project',
   parameters: z.object({
-    project_id: z.string().describe('Project ID or URL-encoded path'),
+    project_id: gitLabIdOrPath('Project ID or URL-encoded path'),
     tag_name: z.string().describe('Tag name for the release'),
     name: z.string().optional().describe('Release name'),
     description: z.string().optional().describe('Release description (supports Markdown)'),

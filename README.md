@@ -66,7 +66,7 @@ Add to `~/.claude.json`:
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `GITLAB_URL` | Yes | `https://gitlab.com` | GitLab instance URL |
+| `GITLAB_URL` | Yes | - | GitLab instance URL |
 | `GITLAB_TOKEN` | Yes | - | Personal Access Token |
 | `GITLAB_REQUEST_TIMEOUT` | No | `30000` | Request timeout (ms) |
 | `GITLAB_DEFAULT_PER_PAGE` | No | `20` | Default page size |
@@ -82,7 +82,7 @@ npm test:watch   # Watch mode
 
 ### Testing
 
-Copy `tests/.env.test.example` to `tests/.env.test` and fill in your GitLab credentials:
+Copy `tests/.env.test.example` to `tests/.env.test`, keep `RUN_GITLAB_INTEGRATION=1`, and fill in your GitLab credentials:
 
 ```bash
 cp tests/.env.test.example tests/.env.test

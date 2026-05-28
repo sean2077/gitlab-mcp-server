@@ -25,3 +25,14 @@ export const coercedBoolean = () =>
     }
     return val;
   }, z.boolean());
+
+export const gitLabIdOrPath = (description: string) =>
+  z.union([z.string(), z.number()])
+    .transform((value) => String(value))
+    .describe(description);
+
+export const pageParam = () =>
+  z.coerce.number().int().min(1).optional().describe('Page number (1-indexed)');
+
+export const perPageParam = () =>
+  z.coerce.number().int().min(1).max(100).optional().describe('Results per page (1-100)');

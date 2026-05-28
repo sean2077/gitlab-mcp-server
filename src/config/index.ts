@@ -11,7 +11,23 @@ export function getConfig(): GitLabConfig {
     throw new Error('GITLAB_TOKEN environment variable is not set');
   }
 
-  const baseUrl = (process.env.GITLAB_URL || 'https://gitlab.com').replace(/\/$/, '');
+  const rawBaseUrl = process.env.GITLAB_URL?.trim();
+  if (!rawBaseUrl) {
+    throw new Error('GITLAB_URL environment variable is not set');
+  }
+
+  let parsedBaseUrl: URL;
+  try {
+    parsedBaseUrl = new URL(rawBaseUrl);
+  } catch {
+    throw new Error('GITLAB_URL must be a valid URL');
+  }
+
+  if (!['http:', 'https:'].includes(parsedBaseUrl.protocol)) {
+    throw new Error('GITLAB_URL must use http or https');
+  }
+
+  const baseUrl = rawBaseUrl.replace(/\/+$/, '');
 
   const rawTimeout = parseInt(process.env.GITLAB_REQUEST_TIMEOUT || '30000', 10);
   const rawPerPage = parseInt(process.env.GITLAB_DEFAULT_PER_PAGE || '20', 10);

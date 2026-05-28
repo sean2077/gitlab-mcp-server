@@ -5,6 +5,7 @@ export class GitLabGroupsService extends BaseGitLabService {
   async listGroups(params: {
     search?: string;
     owned?: boolean;
+    archived?: boolean;
     min_access_level?: number;
     top_level_only?: boolean;
     order_by?: string;

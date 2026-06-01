@@ -10,22 +10,56 @@ export class GitLabApiError extends Error {
   }
 }
 
-export function parseRetryAfter(header: string | null): number {
-  if (!header) return 5;
-
-  const parsedSeconds = Number(header);
-  if (!Number.isNaN(parsedSeconds) && parsedSeconds > 0) {
-    return parsedSeconds;
+/** Thrown when a request exceeds the configured timeout and is aborted. */
+export class GitLabTimeoutError extends Error {
+  constructor(public readonly timeout: number, url: string) {
+    super(`GitLab API request timed out after ${timeout}ms: ${url}`);
+    this.name = 'GitLabTimeoutError';
   }
-
-  const parsedDate = Date.parse(header);
-  if (!Number.isNaN(parsedDate)) {
-    const secondsUntilDate = Math.ceil((parsedDate - Date.now()) / 1000);
-    return secondsUntilDate > 0 ? secondsUntilDate : 5;
-  }
-
-  return 5;
 }
+
+/**
+ * Upper bound (seconds) we are willing to wait for a 429 Retry-After before
+ * giving up the wait. Without this, a hostile or misconfigured server returning
+ * `Retry-After: 3600` could block a single tool call far beyond the request
+ * timeout. See parseRetryAfter.
+ */
+export const MAX_RETRY_AFTER_SECONDS = 60;
+
+/**
+ * Resolve the number of seconds to wait before retrying a 429, given the
+ * `Retry-After` header. Accepts either a delta-seconds value or an HTTP date.
+ * The result is always bounded to [1, MAX_RETRY_AFTER_SECONDS] so a single call
+ * can never hang indefinitely on a large/abusive value.
+ */
+export function parseRetryAfter(header: string | null): number {
+  let seconds = 5;
+
+  if (header) {
+    const parsedSeconds = Number(header);
+    if (!Number.isNaN(parsedSeconds) && parsedSeconds > 0) {
+      seconds = parsedSeconds;
+    } else {
+      const parsedDate = Date.parse(header);
+      if (!Number.isNaN(parsedDate)) {
+        const secondsUntilDate = Math.ceil((parsedDate - Date.now()) / 1000);
+        seconds = secondsUntilDate > 0 ? secondsUntilDate : 5;
+      }
+    }
+  }
+
+  return Math.min(seconds, MAX_RETRY_AFTER_SECONDS);
+}
+
+export type QueryParamValue =
+  | string
+  | number
+  | boolean
+  | Array<string | number>
+  | undefined
+  | null;
+
+const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
 export class BaseGitLabService {
   protected baseUrl: string;
@@ -46,118 +80,112 @@ export class BaseGitLabService {
     return getGitLabApiUrl(this.baseUrl, endpoint);
   }
 
-  protected async fetchJson<T>(url: string, init?: RequestInit, retries = 1): Promise<T> {
+  /**
+   * Single entry point for every HTTP call: applies the timeout, surfaces a
+   * clear timeout error, retries once on 429 (bounded by parseRetryAfter), and
+   * converts non-2xx responses into GitLabApiError via handleError.
+   */
+  protected async request(url: string, init?: RequestInit, retries = 1): Promise<Response> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
+    let response: Response;
     try {
-      const response = await fetch(url, {
+      response = await fetch(url, {
         ...init,
         headers: { ...this.headers, ...init?.headers },
         signal: controller.signal,
       });
-
-      if (response.status === 429 && retries > 0) {
-        clearTimeout(timeoutId);
-        const retryAfter = parseRetryAfter(response.headers.get('Retry-After'));
-        await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
-        return this.fetchJson<T>(url, init, retries - 1);
+    } catch (error) {
+      if (controller.signal.aborted) {
+        throw new GitLabTimeoutError(this.timeout, url);
       }
-
-      if (!response.ok) {
-        await this.handleError(response);
-      }
-
-      return await response.json() as T;
+      throw error;
     } finally {
       clearTimeout(timeoutId);
     }
+
+    if (response.status === 429 && retries > 0) {
+      // Bound the backoff by the request timeout too: a single tool call should
+      // never wait longer than its configured timeout, even across a retry.
+      const retryAfterMs = Math.min(parseRetryAfter(response.headers.get('Retry-After')) * 1000, this.timeout);
+      await delay(retryAfterMs);
+      return this.request(url, init, retries - 1);
+    }
+
+    if (!response.ok) {
+      await this.handleError(response);
+    }
+
+    return response;
+  }
+
+  protected async fetchJson<T>(url: string, init?: RequestInit, retries = 1): Promise<T> {
+    const response = await this.request(url, init, retries);
+    return await response.json() as T;
   }
 
   protected async fetchText(url: string, init?: RequestInit, retries = 1): Promise<string> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    const response = await this.request(url, init, retries);
+    return await response.text();
+  }
 
-    try {
-      const response = await fetch(url, {
-        ...init,
-        headers: { ...this.headers, ...init?.headers },
-        signal: controller.signal,
-      });
-
-      if (response.status === 429 && retries > 0) {
-        clearTimeout(timeoutId);
-        const retryAfter = parseRetryAfter(response.headers.get('Retry-After'));
-        await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
-        return this.fetchText(url, init, retries - 1);
+  /**
+   * Build a query string from a param map. Array values are expanded into
+   * repeated `key[]=...` entries (GitLab's array convention); undefined/null
+   * values are skipped.
+   */
+  protected buildSearchParams(params: Record<string, QueryParamValue>): URLSearchParams {
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value === undefined || value === null) continue;
+      if (Array.isArray(value)) {
+        for (const item of value) {
+          if (item !== undefined && item !== null) {
+            searchParams.append(`${key}[]`, String(item));
+          }
+        }
+      } else {
+        searchParams.set(key, String(value));
       }
-
-      if (!response.ok) {
-        await this.handleError(response);
-      }
-
-      return await response.text();
-    } finally {
-      clearTimeout(timeoutId);
     }
+    return searchParams;
+  }
+
+  protected parsePaginationHeaders(
+    response: Response,
+    fallbackPage: number,
+  ): { page: number; total: number; totalPages: number } {
+    const page = parseInt(response.headers.get('X-Page') || String(fallbackPage), 10);
+    const xTotal = response.headers.get('X-Total');
+    const xTotalPages = response.headers.get('X-Total-Pages');
+    const xNextPage = response.headers.get('X-Next-Page');
+    const total = xTotal ? parseInt(xTotal, 10) : -1;
+    const totalPages = xTotalPages
+      ? parseInt(xTotalPages, 10)
+      : (xNextPage ? page + 1 : page);
+    return { page, total, totalPages };
   }
 
   protected async fetchWithPagination<T>(
     endpoint: string,
-    params: Record<string, string | number | boolean | undefined> = {},
+    params: Record<string, QueryParamValue> = {},
     retries = 1,
   ): Promise<PaginatedResponse<T>> {
     const { page = 1, per_page = this.defaultPerPage, ...otherParams } = params;
 
-    const searchParams = new URLSearchParams();
-    searchParams.set('page', String(page));
-    searchParams.set('per_page', String(per_page));
-
-    for (const [key, value] of Object.entries(otherParams)) {
-      if (value !== undefined && value !== null) {
-        searchParams.set(key, String(value));
-      }
-    }
-
+    const searchParams = this.buildSearchParams({ page, per_page, ...otherParams });
     const url = `${this.apiUrl(endpoint)}?${searchParams.toString()}`;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
-    try {
-      const response = await fetch(url, {
-        headers: this.headers,
-        signal: controller.signal,
-      });
+    const response = await this.request(url, undefined, retries);
+    const items = await response.json() as T[];
+    const pagination = this.parsePaginationHeaders(response, typeof page === 'number' ? page : 1);
 
-      if (response.status === 429 && retries > 0) {
-        clearTimeout(timeoutId);
-        const retryAfter = parseRetryAfter(response.headers.get('Retry-After'));
-        await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
-        return this.fetchWithPagination<T>(endpoint, params, retries - 1);
-      }
-
-      if (!response.ok) {
-        await this.handleError(response);
-      }
-
-      const items = await response.json() as T[];
-      const currentPage = parseInt(response.headers.get('X-Page') || String(page), 10);
-      const xTotal = response.headers.get('X-Total');
-      const xTotalPages = response.headers.get('X-Total-Pages');
-      const xNextPage = response.headers.get('X-Next-Page');
-      const total = xTotal ? parseInt(xTotal, 10) : -1;
-      const totalPages = xTotalPages
-        ? parseInt(xTotalPages, 10)
-        : (xNextPage ? currentPage + 1 : currentPage);
-
-      return { items, total, page: currentPage, totalPages };
-    } finally {
-      clearTimeout(timeoutId);
-    }
+    return { items, total: pagination.total, page: pagination.page, totalPages: pagination.totalPages };
   }
 
   protected async handleError(response: Response): Promise<never> {
-    let message = response.statusText;
+    let message = '';
 
     try {
       const contentType = response.headers.get('content-type') || '';
@@ -174,18 +202,21 @@ export class BaseGitLabService {
           message = errorData.error;
         }
       } else {
-        message = await response.text() || message;
+        message = await response.text();
       }
     } catch {
-      // Could not parse response body, use statusText
+      // Could not parse response body; fall back to a status-based message below.
     }
 
-    switch (response.status) {
-      case 401: message = message || 'Authentication failed. Check your GitLab token.'; break;
-      case 403: message = message || 'Forbidden. Check your token scopes and permissions.'; break;
-      case 404: message = message || 'Resource not found.'; break;
-      case 409: message = message || 'Conflict.'; break;
-      case 422: message = message || 'Validation failed.'; break;
+    if (!message) {
+      switch (response.status) {
+        case 401: message = 'Authentication failed. Check your GitLab token.'; break;
+        case 403: message = 'Forbidden. Check your token scopes and permissions.'; break;
+        case 404: message = 'Resource not found.'; break;
+        case 409: message = 'Conflict.'; break;
+        case 422: message = 'Validation failed.'; break;
+        default: message = response.statusText || 'Request failed';
+      }
     }
 
     throw new GitLabApiError(response.status, `GitLab API Error (${response.status}): ${message}`);

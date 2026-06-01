@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
 import { coerceArray, coercedBoolean, gitLabIdOrPath, pageParam, perPageParam } from '../utils/zod.js';
+import { jsonResult, paginatedResult } from '../utils/response.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listIssuesTool: ToolDefinition = {
@@ -24,12 +25,7 @@ export const listIssuesTool: ToolDefinition = {
     const { issues } = createGitLabServices();
     const { project_id, ...options } = params;
     const result = await issues.listIssues(project_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} issues (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('issues', result);
   },
 };
 
@@ -43,7 +39,7 @@ export const getIssueTool: ToolDefinition = {
   handler: async (params) => {
     const { issues } = createGitLabServices();
     const issue = await issues.getIssue(params.project_id as string, params.issue_iid as number);
-    return { content: [{ type: 'text', text: JSON.stringify(issue, null, 2) }] };
+    return jsonResult(issue);
   },
 };
 
@@ -64,7 +60,7 @@ export const createIssueTool: ToolDefinition = {
     const { issues } = createGitLabServices();
     const { project_id, ...data } = params;
     const issue = await issues.createIssue(project_id as string, data as Parameters<typeof issues.createIssue>[1]);
-    return { content: [{ type: 'text', text: JSON.stringify(issue, null, 2) }] };
+    return jsonResult(issue);
   },
 };
 
@@ -77,7 +73,7 @@ export const updateIssueTool: ToolDefinition = {
     title: z.string().optional().describe('New title'),
     description: z.string().optional().describe('New description'),
     assignee_ids: coerceArray(z.array(z.coerce.number())).optional().describe('Assignee user IDs'),
-    milestone_id: z.coerce.number().nullable().optional().describe('Milestone ID'),
+    milestone_id: z.coerce.number().nullable().optional().describe('Milestone ID (null or 0 to unassign)'),
     labels: coerceArray(z.array(z.string())).optional().describe('Label names'),
     state_event: z.enum(['close', 'reopen']).optional().describe('State transition'),
     due_date: z.string().nullable().optional().describe('Due date (YYYY-MM-DD)'),
@@ -91,7 +87,7 @@ export const updateIssueTool: ToolDefinition = {
       issue_iid as number,
       data as Parameters<typeof issues.updateIssue>[2],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(issue, null, 2) }] };
+    return jsonResult(issue);
   },
 };
 
@@ -110,12 +106,7 @@ export const listIssueNotesTool: ToolDefinition = {
     const { issues } = createGitLabServices();
     const { project_id, issue_iid, ...options } = params;
     const result = await issues.listIssueNotes(project_id as string, issue_iid as number, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} notes (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('notes', result);
   },
 };
 
@@ -136,7 +127,7 @@ export const createIssueNoteTool: ToolDefinition = {
       params.body as string,
       params.internal as boolean | undefined,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(note, null, 2) }] };
+    return jsonResult(note);
   },
 };
 
@@ -153,12 +144,7 @@ export const listIssueDiscussionsTool: ToolDefinition = {
     const { issues } = createGitLabServices();
     const { project_id, issue_iid, ...options } = params;
     const result = await issues.listIssueDiscussions(project_id as string, issue_iid as number, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} discussions (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('discussions', result);
   },
 };
 

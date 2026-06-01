@@ -19,11 +19,23 @@ export interface GitLabServices {
   wikis: GitLabWikisService;
 }
 
+let cachedServices: GitLabServices | null = null;
+
+/**
+ * Build (once) and return the GitLab service singletons. Services are stateless
+ * for the process lifetime, so we memoize them: this avoids re-reading/parsing
+ * the environment config and re-constructing all eight services on every tool
+ * call. Config validation is still deferred to the first call (first tool use).
+ */
 export function createGitLabServices(): GitLabServices {
+  if (cachedServices) {
+    return cachedServices;
+  }
+
   const config = getConfig();
   const { baseUrl, token, requestTimeout, defaultPerPage } = config;
 
-  return {
+  cachedServices = {
     users: new GitLabUsersService(baseUrl, token, requestTimeout, defaultPerPage),
     projects: new GitLabProjectsService(baseUrl, token, requestTimeout, defaultPerPage),
     issues: new GitLabIssuesService(baseUrl, token, requestTimeout, defaultPerPage),
@@ -33,4 +45,11 @@ export function createGitLabServices(): GitLabServices {
     groups: new GitLabGroupsService(baseUrl, token, requestTimeout, defaultPerPage),
     wikis: new GitLabWikisService(baseUrl, token, requestTimeout, defaultPerPage),
   };
+
+  return cachedServices;
+}
+
+/** Reset memoized services. Intended for tests that stub env/config. */
+export function resetGitLabServices(): void {
+  cachedServices = null;
 }

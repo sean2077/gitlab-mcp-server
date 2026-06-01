@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
 import { coerceArray, coercedBoolean, gitLabIdOrPath, pageParam, perPageParam } from '../utils/zod.js';
+import { jsonResult, paginatedResult, textResult } from '../utils/response.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listPipelinesTool: ToolDefinition = {
@@ -21,12 +22,7 @@ export const listPipelinesTool: ToolDefinition = {
     const { pipelines } = createGitLabServices();
     const { project_id, ...options } = params;
     const result = await pipelines.listPipelines(project_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} pipelines (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('pipelines', result);
   },
 };
 
@@ -43,7 +39,7 @@ export const getPipelineTool: ToolDefinition = {
       params.project_id as string,
       params.pipeline_id as number,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(pipeline, null, 2) }] };
+    return jsonResult(pipeline);
   },
 };
 
@@ -66,12 +62,7 @@ export const listPipelineJobsTool: ToolDefinition = {
       pipeline_id as number,
       options,
     );
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} jobs (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('jobs', result);
   },
 };
 
@@ -90,7 +81,7 @@ export const getJobLogTool: ToolDefinition = {
       params.job_id as number,
       params.tail_lines as number | undefined,
     );
-    return { content: [{ type: 'text', text: log }] };
+    return textResult(log);
   },
 };
 
@@ -113,7 +104,7 @@ export const triggerPipelineTool: ToolDefinition = {
       params.ref as string,
       params.variables as Array<{ key: string; value: string; variable_type?: string }> | undefined,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(pipeline, null, 2) }] };
+    return jsonResult(pipeline);
   },
 };
 
@@ -130,7 +121,7 @@ export const retryPipelineTool: ToolDefinition = {
       params.project_id as string,
       params.pipeline_id as number,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(pipeline, null, 2) }] };
+    return jsonResult(pipeline);
   },
 };
 
@@ -147,7 +138,7 @@ export const cancelPipelineTool: ToolDefinition = {
       params.project_id as string,
       params.pipeline_id as number,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(pipeline, null, 2) }] };
+    return jsonResult(pipeline);
   },
 };
 
@@ -164,7 +155,7 @@ export const getJobTool: ToolDefinition = {
       params.project_id as string,
       params.job_id as number,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(job, null, 2) }] };
+    return jsonResult(job);
   },
 };
 
@@ -181,7 +172,7 @@ export const retryJobTool: ToolDefinition = {
       params.project_id as string,
       params.job_id as number,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(job, null, 2) }] };
+    return jsonResult(job);
   },
 };
 
@@ -198,7 +189,7 @@ export const cancelJobTool: ToolDefinition = {
       params.project_id as string,
       params.job_id as number,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(job, null, 2) }] };
+    return jsonResult(job);
   },
 };
 
@@ -217,12 +208,7 @@ export const listEnvironmentsTool: ToolDefinition = {
     const { pipelines } = createGitLabServices();
     const { project_id, ...options } = params;
     const result = await pipelines.listEnvironments(project_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} environments (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('environments', result);
   },
 };
 
@@ -239,7 +225,7 @@ export const getEnvironmentTool: ToolDefinition = {
       params.project_id as string,
       params.environment_id as number,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(env, null, 2) }] };
+    return jsonResult(env);
   },
 };
 

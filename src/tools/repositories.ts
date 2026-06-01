@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
 import { coerceArray, coercedBoolean, gitLabIdOrPath, pageParam, perPageParam } from '../utils/zod.js';
+import { jsonResult, paginatedResult, textResult } from '../utils/response.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listBranchesTool: ToolDefinition = {
@@ -17,12 +18,7 @@ export const listBranchesTool: ToolDefinition = {
     const { repositories } = createGitLabServices();
     const { project_id, ...options } = params;
     const result = await repositories.listBranches(project_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} branches (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('branches', result);
   },
 };
 
@@ -41,7 +37,7 @@ export const createBranchTool: ToolDefinition = {
       params.branch as string,
       params.ref as string,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(branch, null, 2) }] };
+    return jsonResult(branch);
   },
 };
 
@@ -60,7 +56,7 @@ export const getFileTool: ToolDefinition = {
       params.file_path as string,
       params.ref as string | undefined,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(file, null, 2) }] };
+    return jsonResult(file);
   },
 };
 
@@ -79,12 +75,7 @@ export const listRepositoryTreeTool: ToolDefinition = {
     const { repositories } = createGitLabServices();
     const { project_id, ...options } = params;
     const result = await repositories.listTree(project_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} items (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('items', result);
   },
 };
 
@@ -105,7 +96,7 @@ export const compareBranchesTool: ToolDefinition = {
       params.to as string,
       params.straight as boolean | undefined,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    return jsonResult(result);
   },
 };
 
@@ -132,7 +123,7 @@ export const createOrUpdateFileTool: ToolDefinition = {
         previous_path: params.previous_path as string | undefined,
       },
     );
-    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    return jsonResult(result);
   },
 };
 
@@ -159,7 +150,7 @@ export const pushFilesTool: ToolDefinition = {
       project_id as string,
       data as Parameters<typeof repositories.pushFiles>[1],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    return jsonResult(result);
   },
 };
 
@@ -173,7 +164,7 @@ export const deleteBranchTool: ToolDefinition = {
   handler: async (params) => {
     const { repositories } = createGitLabServices();
     await repositories.deleteBranch(params.project_id as string, params.branch as string);
-    return { content: [{ type: 'text', text: `Branch "${params.branch}" deleted successfully` }] };
+    return textResult(`Branch "${params.branch}" deleted successfully`);
   },
 };
 
@@ -196,12 +187,7 @@ export const listCommitsTool: ToolDefinition = {
     const { repositories } = createGitLabServices();
     const { project_id, ...options } = params;
     const result = await repositories.listCommits(project_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} commits (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('commits', result);
   },
 };
 
@@ -220,12 +206,7 @@ export const listTagsTool: ToolDefinition = {
     const { repositories } = createGitLabServices();
     const { project_id, ...options } = params;
     const result = await repositories.listTags(project_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} tags (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('tags', result);
   },
 };
 
@@ -246,7 +227,7 @@ export const createTagTool: ToolDefinition = {
       params.ref as string,
       params.message as string | undefined,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(tag, null, 2) }] };
+    return jsonResult(tag);
   },
 };
 
@@ -263,12 +244,7 @@ export const listProtectedBranchesTool: ToolDefinition = {
     const { repositories } = createGitLabServices();
     const { project_id, ...options } = params;
     const result = await repositories.listProtectedBranches(project_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} protected branches (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('protected branches', result);
   },
 };
 
@@ -287,7 +263,7 @@ export const protectBranchTool: ToolDefinition = {
     const { repositories } = createGitLabServices();
     const { project_id, name, ...options } = params;
     const branch = await repositories.protectBranch(project_id as string, name as string, options);
-    return { content: [{ type: 'text', text: JSON.stringify(branch, null, 2) }] };
+    return jsonResult(branch);
   },
 };
 
@@ -301,7 +277,7 @@ export const unprotectBranchTool: ToolDefinition = {
   handler: async (params) => {
     const { repositories } = createGitLabServices();
     await repositories.unprotectBranch(params.project_id as string, params.name as string);
-    return { content: [{ type: 'text', text: `Branch "${params.name}" unprotected successfully` }] };
+    return textResult(`Branch "${params.name}" unprotected successfully`);
   },
 };
 
@@ -319,12 +295,7 @@ export const listReleasesTool: ToolDefinition = {
     const { repositories } = createGitLabServices();
     const { project_id, ...options } = params;
     const result = await repositories.listReleases(project_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} releases (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('releases', result);
   },
 };
 
@@ -344,7 +315,7 @@ export const createReleaseTool: ToolDefinition = {
     const { repositories } = createGitLabServices();
     const { project_id, tag_name, ...options } = params;
     const release = await repositories.createRelease(project_id as string, tag_name as string, options);
-    return { content: [{ type: 'text', text: JSON.stringify(release, null, 2) }] };
+    return jsonResult(release);
   },
 };
 

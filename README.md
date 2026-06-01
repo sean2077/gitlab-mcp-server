@@ -19,7 +19,7 @@ GitLab [officially supports MCP](https://docs.gitlab.com/ee/user/gitlab_duo/mcp/
 
 - **MCP client compatible** — robust type coercion handles string-typed numbers, booleans, and JSON-encoded arrays from any MCP client
 - **Response-size optimized** — list endpoints default to `simple=true`, group details default to `with_projects=false`, preventing token overflow in LLM conversations
-- **Resilient** — automatic retry on 429 (rate limit) with Retry-After, configurable timeouts, unified error messages
+- **Resilient** — automatic retry on 429 (rate limit) honoring `Retry-After` (backoff is bounded by the request timeout, so a call never hangs indefinitely), configurable timeouts with clear timeout errors, unified error messages
 - **Zero runtime dependencies** beyond `@modelcontextprotocol/sdk` and `zod`
 
 ## Features (87 tools)

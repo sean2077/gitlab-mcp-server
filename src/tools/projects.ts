@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
 import { coercedBoolean, gitLabIdOrPath, pageParam, perPageParam } from '../utils/zod.js';
+import { jsonResult, paginatedResult } from '../utils/response.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listProjectsTool: ToolDefinition = {
@@ -21,12 +22,7 @@ export const listProjectsTool: ToolDefinition = {
   handler: async (params) => {
     const { projects } = createGitLabServices();
     const result = await projects.listProjects(params);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} projects (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('projects', result);
   },
 };
 
@@ -39,7 +35,7 @@ export const getProjectTool: ToolDefinition = {
   handler: async (params) => {
     const { projects } = createGitLabServices();
     const project = await projects.getProject(params.project_id as string);
-    return { content: [{ type: 'text', text: JSON.stringify(project, null, 2) }] };
+    return jsonResult(project);
   },
 };
 
@@ -59,12 +55,7 @@ export const searchProjectsTool: ToolDefinition = {
       page: params.page as number | undefined,
       per_page: params.per_page as number | undefined,
     });
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} projects (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('projects', result);
   },
 };
 
@@ -81,12 +72,7 @@ export const listProjectMembersTool: ToolDefinition = {
     const { projects } = createGitLabServices();
     const { project_id, ...options } = params;
     const result = await projects.listProjectMembers(project_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} members (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('members', result);
   },
 };
 
@@ -104,12 +90,7 @@ export const listLabelsTool: ToolDefinition = {
     const { projects } = createGitLabServices();
     const { project_id, ...options } = params;
     const result = await projects.listLabels(project_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} labels (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('labels', result);
   },
 };
 
@@ -130,7 +111,7 @@ export const createLabelTool: ToolDefinition = {
       project_id as string,
       data as Parameters<typeof projects.createLabel>[1],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(label, null, 2) }] };
+    return jsonResult(label);
   },
 };
 
@@ -150,12 +131,7 @@ export const listMilestonesTool: ToolDefinition = {
     const { projects } = createGitLabServices();
     const { project_id, ...options } = params;
     const result = await projects.listMilestones(project_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} milestones (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('milestones', result);
   },
 };
 
@@ -176,7 +152,7 @@ export const createMilestoneTool: ToolDefinition = {
       project_id as string,
       data as Parameters<typeof projects.createMilestone>[1],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(milestone, null, 2) }] };
+    return jsonResult(milestone);
   },
 };
 
@@ -202,7 +178,7 @@ export const updateProjectTool: ToolDefinition = {
       project_id as string,
       data as Parameters<typeof projects.updateProject>[1],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(project, null, 2) }] };
+    return jsonResult(project);
   },
 };
 
@@ -222,7 +198,7 @@ export const createProjectTool: ToolDefinition = {
     const project = await projects.createProject(
       params as Parameters<typeof projects.createProject>[0],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(project, null, 2) }] };
+    return jsonResult(project);
   },
 };
 
@@ -239,7 +215,7 @@ export const forkProjectTool: ToolDefinition = {
       params.project_id as string,
       params.namespace as string | undefined,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(fork, null, 2) }] };
+    return jsonResult(fork);
   },
 };
 
@@ -260,12 +236,7 @@ export const getProjectEventsTool: ToolDefinition = {
     const { projects } = createGitLabServices();
     const { project_id, ...options } = params;
     const result = await projects.getProjectEvents(project_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} events (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('events', result);
   },
 };
 
@@ -288,7 +259,7 @@ export const updateLabelTool: ToolDefinition = {
       label_id as number,
       data as Parameters<typeof projects.updateLabel>[2],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(label, null, 2) }] };
+    return jsonResult(label);
   },
 };
 
@@ -312,7 +283,7 @@ export const updateMilestoneTool: ToolDefinition = {
       milestone_id as number,
       data as Parameters<typeof projects.updateMilestone>[2],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(milestone, null, 2) }] };
+    return jsonResult(milestone);
   },
 };
 

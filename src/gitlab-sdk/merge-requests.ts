@@ -67,10 +67,14 @@ export class GitLabMergeRequestsService extends BaseGitLabService {
     draft?: boolean;
   }): Promise<GitLabMergeRequest> {
     const pid = encodeProjectId(projectId);
-    const { labels, ...rest } = data;
+    const { labels, milestone_id, ...rest } = data;
     const body: Record<string, unknown> = { ...rest };
     if (labels !== undefined) {
       body.labels = labels.join(',');
+    }
+    if (milestone_id !== undefined) {
+      // GitLab uses milestone_id: 0 (not null) to unassign a milestone.
+      body.milestone_id = milestone_id === null ? 0 : milestone_id;
     }
     return this.fetchJson<GitLabMergeRequest>(this.apiUrl(`projects/${pid}/merge_requests/${mrIid}`), {
       method: 'PUT',

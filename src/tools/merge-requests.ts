@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
 import { coerceArray, coercedBoolean, gitLabIdOrPath, pageParam, perPageParam } from '../utils/zod.js';
+import { jsonResult, paginatedResult } from '../utils/response.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listMergeRequestsTool: ToolDefinition = {
@@ -27,12 +28,7 @@ export const listMergeRequestsTool: ToolDefinition = {
     const { mergeRequests } = createGitLabServices();
     const { project_id, ...options } = params;
     const result = await mergeRequests.listMergeRequests(project_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} merge requests (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('merge requests', result);
   },
 };
 
@@ -46,7 +42,7 @@ export const getMergeRequestTool: ToolDefinition = {
   handler: async (params) => {
     const { mergeRequests } = createGitLabServices();
     const mr = await mergeRequests.getMergeRequest(params.project_id as string, params.merge_request_iid as number);
-    return { content: [{ type: 'text', text: JSON.stringify(mr, null, 2) }] };
+    return jsonResult(mr);
   },
 };
 
@@ -74,7 +70,7 @@ export const createMergeRequestTool: ToolDefinition = {
       project_id as string,
       data as Parameters<typeof mergeRequests.createMergeRequest>[1],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(mr, null, 2) }] };
+    return jsonResult(mr);
   },
 };
 
@@ -90,7 +86,7 @@ export const updateMergeRequestTool: ToolDefinition = {
     assignee_ids: coerceArray(z.array(z.coerce.number())).optional().describe('Assignee user IDs'),
     reviewer_ids: coerceArray(z.array(z.coerce.number())).optional().describe('Reviewer user IDs'),
     labels: coerceArray(z.array(z.string())).optional().describe('Label names'),
-    milestone_id: z.coerce.number().nullable().optional().describe('Milestone ID'),
+    milestone_id: z.coerce.number().nullable().optional().describe('Milestone ID (null or 0 to unassign)'),
     state_event: z.enum(['close', 'reopen']).optional().describe('State transition'),
     remove_source_branch: coercedBoolean().optional().describe('Remove source branch after merge'),
     squash: coercedBoolean().optional().describe('Squash commits on merge'),
@@ -104,7 +100,7 @@ export const updateMergeRequestTool: ToolDefinition = {
       merge_request_iid as number,
       data as Parameters<typeof mergeRequests.updateMergeRequest>[2],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(mr, null, 2) }] };
+    return jsonResult(mr);
   },
 };
 
@@ -128,7 +124,7 @@ export const mergeMergeRequestTool: ToolDefinition = {
       merge_request_iid as number,
       options,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(mr, null, 2) }] };
+    return jsonResult(mr);
   },
 };
 
@@ -149,12 +145,7 @@ export const getMergeRequestDiffsTool: ToolDefinition = {
       merge_request_iid as number,
       options,
     );
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} diffs (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('diffs', result);
   },
 };
 
@@ -177,12 +168,7 @@ export const listMRNotesTool: ToolDefinition = {
       merge_request_iid as number,
       options,
     );
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} notes (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('notes', result);
   },
 };
 
@@ -201,7 +187,7 @@ export const createMRNoteTool: ToolDefinition = {
       params.merge_request_iid as number,
       params.body as string,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(note, null, 2) }] };
+    return jsonResult(note);
   },
 };
 
@@ -222,12 +208,7 @@ export const getMergeRequestCommitsTool: ToolDefinition = {
       merge_request_iid as number,
       options,
     );
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} commits (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('commits', result);
   },
 };
 
@@ -246,7 +227,7 @@ export const approveMergeRequestTool: ToolDefinition = {
       params.merge_request_iid as number,
       params.sha as string | undefined,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(mr, null, 2) }] };
+    return jsonResult(mr);
   },
 };
 
@@ -263,7 +244,7 @@ export const unapproveMergeRequestTool: ToolDefinition = {
       params.project_id as string,
       params.merge_request_iid as number,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(mr, null, 2) }] };
+    return jsonResult(mr);
   },
 };
 
@@ -282,7 +263,7 @@ export const rebaseMergeRequestTool: ToolDefinition = {
       params.merge_request_iid as number,
       params.skip_ci as boolean | undefined,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    return jsonResult(result);
   },
 };
 
@@ -303,12 +284,7 @@ export const listMRDiscussionsTool: ToolDefinition = {
       merge_request_iid as number,
       options,
     );
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} discussions (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('discussions', result);
   },
 };
 
@@ -338,7 +314,7 @@ export const createMRDiscussionTool: ToolDefinition = {
       params.body as string,
       params.position as Parameters<typeof mergeRequests.createMRDiscussion>[3],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(discussion, null, 2) }] };
+    return jsonResult(discussion);
   },
 };
 
@@ -358,7 +334,7 @@ export const setAutoMergeTool: ToolDefinition = {
     const { mergeRequests } = createGitLabServices();
     const { project_id, merge_request_iid, ...options } = params;
     const mr = await mergeRequests.setAutoMerge(project_id as string, merge_request_iid as number, options);
-    return { content: [{ type: 'text', text: JSON.stringify(mr, null, 2) }] };
+    return jsonResult(mr);
   },
 };
 
@@ -372,7 +348,7 @@ export const cancelAutoMergeTool: ToolDefinition = {
   handler: async (params) => {
     const { mergeRequests } = createGitLabServices();
     const mr = await mergeRequests.cancelAutoMerge(params.project_id as string, params.merge_request_iid as number);
-    return { content: [{ type: 'text', text: JSON.stringify(mr, null, 2) }] };
+    return jsonResult(mr);
   },
 };
 
@@ -393,7 +369,7 @@ export const updateMRNoteTool: ToolDefinition = {
       params.note_id as number,
       params.body as string,
     );
-    return { content: [{ type: 'text', text: JSON.stringify(note, null, 2) }] };
+    return jsonResult(note);
   },
 };
 

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
 import { coercedBoolean, gitLabIdOrPath, pageParam, perPageParam } from '../utils/zod.js';
+import { jsonResult, paginatedResult, textResult } from '../utils/response.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const listGroupsTool: ToolDefinition = {
@@ -20,12 +21,7 @@ export const listGroupsTool: ToolDefinition = {
   handler: async (params) => {
     const { groups } = createGitLabServices();
     const result = await groups.listGroups(params);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} groups (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('groups', result);
   },
 };
 
@@ -41,7 +37,7 @@ export const getGroupTool: ToolDefinition = {
     const group = await groups.getGroup(params.group_id as string, {
       with_projects: params.with_projects as boolean | undefined,
     });
-    return { content: [{ type: 'text', text: JSON.stringify(group, null, 2) }] };
+    return jsonResult(group);
   },
 };
 
@@ -64,12 +60,7 @@ export const listGroupProjectsTool: ToolDefinition = {
     const { groups } = createGitLabServices();
     const { group_id, ...options } = params;
     const result = await groups.listGroupProjects(group_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} projects (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('projects', result);
   },
 };
 
@@ -86,12 +77,7 @@ export const listGroupMembersTool: ToolDefinition = {
     const { groups } = createGitLabServices();
     const { group_id, ...options } = params;
     const result = await groups.listGroupMembers(group_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} members (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('members', result);
   },
 };
 
@@ -112,12 +98,7 @@ export const listGroupSubgroupsTool: ToolDefinition = {
     const { groups } = createGitLabServices();
     const { group_id, ...options } = params;
     const result = await groups.listGroupSubgroups(group_id as string, options);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} subgroups (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('subgroups', result);
   },
 };
 
@@ -138,7 +119,7 @@ export const createGroupTool: ToolDefinition = {
     const group = await groups.createGroup(
       params as Parameters<typeof groups.createGroup>[0],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(group, null, 2) }] };
+    return jsonResult(group);
   },
 };
 
@@ -161,7 +142,7 @@ export const updateGroupTool: ToolDefinition = {
       group_id as string,
       data as Parameters<typeof groups.updateGroup>[1],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(group, null, 2) }] };
+    return jsonResult(group);
   },
 };
 
@@ -174,7 +155,7 @@ export const deleteGroupTool: ToolDefinition = {
   handler: async (params) => {
     const { groups } = createGitLabServices();
     await groups.deleteGroup(params.group_id as string);
-    return { content: [{ type: 'text', text: `Group "${params.group_id}" scheduled for deletion` }] };
+    return textResult(`Group "${params.group_id}" scheduled for deletion`);
   },
 };
 

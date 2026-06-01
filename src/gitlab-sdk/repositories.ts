@@ -89,21 +89,27 @@ export class GitLabRepositoriesService extends BaseGitLabService {
 
     const { previous_path: _previousPath, ...fileData } = data;
 
-    // Check if file exists to decide POST (create) vs PUT (update)
-    let method = 'POST';
-    try {
-      await this.getFile(projectId, filePath, data.branch);
-      method = 'PUT';
-    } catch (err) {
-      if (!(err instanceof GitLabApiError && err.status === 404)) {
-        throw err;
-      }
-    }
+    // Decide POST (create) vs PUT (update). Use a HEAD request so we don't
+    // download and decode the entire file just to test for existence.
+    const method = (await this.fileExists(pid, encodedPath, data.branch)) ? 'PUT' : 'POST';
 
     return this.fetchJson<{ file_path: string; branch: string; commit_id?: string }>(url, {
       method,
       body: JSON.stringify(fileData),
     });
+  }
+
+  private async fileExists(pid: string, encodedPath: string, ref: string): Promise<boolean> {
+    const url = `${this.apiUrl(`projects/${pid}/repository/files/${encodedPath}`)}?ref=${encodeURIComponent(ref)}`;
+    try {
+      await this.request(url, { method: 'HEAD' });
+      return true;
+    } catch (err) {
+      if (err instanceof GitLabApiError && err.status === 404) {
+        return false;
+      }
+      throw err;
+    }
   }
 
   async pushFiles(projectId: string | number, data: {

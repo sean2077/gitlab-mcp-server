@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
 import { coercedBoolean, gitLabIdOrPath } from '../utils/zod.js';
+import { jsonResult, textResult } from '../utils/response.js';
 import type { ToolDefinition } from '../types/index.js';
 
 // ============================================================================
@@ -48,7 +49,7 @@ export const getProjectWikiPageTool: ToolDefinition = {
         version: params.version as string | undefined,
       },
     );
-    return { content: [{ type: 'text', text: JSON.stringify(page, null, 2) }] };
+    return jsonResult(page);
   },
 };
 
@@ -71,7 +72,7 @@ export const createProjectWikiPageTool: ToolDefinition = {
         format: params.format as string | undefined,
       },
     );
-    return { content: [{ type: 'text', text: JSON.stringify(page, null, 2) }] };
+    return jsonResult(page);
   },
 };
 
@@ -93,7 +94,7 @@ export const editProjectWikiPageTool: ToolDefinition = {
       slug as string,
       data as Parameters<typeof wikis.editProjectWikiPage>[2],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(page, null, 2) }] };
+    return jsonResult(page);
   },
 };
 
@@ -107,7 +108,7 @@ export const deleteProjectWikiPageTool: ToolDefinition = {
   handler: async (params) => {
     const { wikis } = createGitLabServices();
     await wikis.deleteProjectWikiPage(params.project_id as string, params.slug as string);
-    return { content: [{ type: 'text', text: `Wiki page "${params.slug}" deleted successfully` }] };
+    return textResult(`Wiki page "${params.slug}" deleted successfully`);
   },
 };
 
@@ -156,7 +157,7 @@ export const getGroupWikiPageTool: ToolDefinition = {
         version: params.version as string | undefined,
       },
     );
-    return { content: [{ type: 'text', text: JSON.stringify(page, null, 2) }] };
+    return jsonResult(page);
   },
 };
 
@@ -179,7 +180,7 @@ export const createGroupWikiPageTool: ToolDefinition = {
         format: params.format as string | undefined,
       },
     );
-    return { content: [{ type: 'text', text: JSON.stringify(page, null, 2) }] };
+    return jsonResult(page);
   },
 };
 
@@ -201,7 +202,7 @@ export const editGroupWikiPageTool: ToolDefinition = {
       slug as string,
       data as Parameters<typeof wikis.editGroupWikiPage>[2],
     );
-    return { content: [{ type: 'text', text: JSON.stringify(page, null, 2) }] };
+    return jsonResult(page);
   },
 };
 
@@ -215,7 +216,7 @@ export const deleteGroupWikiPageTool: ToolDefinition = {
   handler: async (params) => {
     const { wikis } = createGitLabServices();
     await wikis.deleteGroupWikiPage(params.group_id as string, params.slug as string);
-    return { content: [{ type: 'text', text: `Wiki page "${params.slug}" deleted successfully` }] };
+    return textResult(`Wiki page "${params.slug}" deleted successfully`);
   },
 };
 

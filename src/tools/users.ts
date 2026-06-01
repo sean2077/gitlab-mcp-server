@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createGitLabServices } from '../utils/auth.js';
 import { coercedBoolean, pageParam, perPageParam } from '../utils/zod.js';
+import { jsonResult, paginatedResult } from '../utils/response.js';
 import type { ToolDefinition } from '../types/index.js';
 
 export const getCurrentUserTool: ToolDefinition = {
@@ -10,7 +11,7 @@ export const getCurrentUserTool: ToolDefinition = {
   handler: async () => {
     const { users } = createGitLabServices();
     const user = await users.getCurrentUser();
-    return { content: [{ type: 'text', text: JSON.stringify(user, null, 2) }] };
+    return jsonResult(user);
   },
 };
 
@@ -30,12 +31,7 @@ export const searchUsersTool: ToolDefinition = {
   handler: async (params) => {
     const { users } = createGitLabServices();
     const result = await users.searchUsers(params);
-    return {
-      content: [
-        { type: 'text', text: `Found ${result.total >= 0 ? result.total : result.items.length} users (page ${result.page}/${result.totalPages})` },
-        { type: 'text', text: JSON.stringify(result.items, null, 2) },
-      ],
-    };
+    return paginatedResult('users', result);
   },
 };
 
@@ -48,7 +44,7 @@ export const getUserTool: ToolDefinition = {
   handler: async (params) => {
     const { users } = createGitLabServices();
     const user = await users.getUser(params.user_id as number);
-    return { content: [{ type: 'text', text: JSON.stringify(user, null, 2) }] };
+    return jsonResult(user);
   },
 };
 
